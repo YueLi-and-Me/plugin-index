@@ -109,11 +109,11 @@ def test_permission_rejection_and_blocked_version(tmp_path,payload):
     """无写权限命令无效；有权限拒绝写入永久版本名单。"""
     instance,github,_,calls=engine(tmp_path,payload,write=False)
     instance.run(12,comment={'body':'/approve','user':{'login':'visitor'}})
-    row=json.loads((tmp_path/'state/test.plugin.json').read_text())['1.0.0']
+    row=json.loads((tmp_path/'state/test.plugin.json').read_text(encoding='utf-8'))['1.0.0']
     assert row['status']=='pending' and not calls
     github.allowed=True
     result=instance.run(12,comment={'body':'/reject 不允许收录','user':{'login':'maintainer'}})
-    assert json.loads((tmp_path/'blocked_versions.json').read_text())=={'test.plugin':['1.0.0']}
+    assert json.loads((tmp_path/'blocked_versions.json').read_text(encoding='utf-8'))=={'test.plugin':['1.0.0']}
     assert result['close'] and not result['publish']
 
 
@@ -159,7 +159,7 @@ def test_registered_pass_and_budget_ledger(tmp_path,payload):
     (tmp_path/'state/issues/12.json').unlink()
     result=instance.run(12)
     assert result['publish'] and result['close'] and len(calls)==1
-    assert json.loads((tmp_path/'state/test.plugin.json').read_text())['1.0.0']['status']=='approved'
+    assert json.loads((tmp_path/'state/test.plugin.json').read_text(encoding='utf-8'))['1.0.0']['status']=='approved'
 
 
 def test_review_workflow_dispatch_and_concurrency():
