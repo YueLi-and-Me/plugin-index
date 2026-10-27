@@ -2,7 +2,7 @@
   "0.1.0": {
     "tag": "v0.1.0",
     "commit": "a837a649077b4fc92430dd5beb1c8b24668b0f89",
-    "status": "pending",
+    "status": "approved",
     "review_issue": 2,
     "manifest": {
       "manifest_version": 2,
@@ -25,7 +25,7 @@
       "version": "0.1.0",
       "reviewed": true,
       "decision": "pass",
-      "summary": "已审阅 0.1.0 版本。插件仅通过宿主门面注册只读搜索工具，按部署者配置的 DeepSeek Search API 地址发送查询词和 API 密钥，返回清洗后的标题、来源、日期与摘要；未读取聊天记录或用户标识，未进行文件读写、宿主数据库/配置修改、子进程、eval 或远程代码执行，也未硬编码回环、内网或云元数据地址。README 已说明第三方服务与可配置接口地址，行为与清单描述一致，未发现违法违规内容或证据不足的问题。",
+      "summary": "维护者批准",
       "risks": []
     }
   }
