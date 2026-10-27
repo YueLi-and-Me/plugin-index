@@ -37,5 +37,6 @@ not_found_handling = "404-page"
 binding = "DB"
 # 库名，部署作业执行 `wrangler d1 execute yueli-plugins` 时按此名称查找。
 database_name = "yueli-plugins"
-# 由维护者执行 `wrangler d1 create yueli-plugins` 建库后，把输出的 database_id 填到这里。
-database_id = "REPLACE_WITH_D1_ID"
+# 计数库的 ID，库建在 APAC 区域。换 Cloudflare 账号部署时需重新建库并替换此值，
+# 否则 wrangler deploy 会因找不到库而失败。
+database_id = "a61f872a-2f62-4b18-bc72-04a26858d46b"

@@ -9,7 +9,7 @@ from typing import Any, Dict
 import argparse
 import os
 
-from .common import records, timestamp, write_json
+from .common import read_json, records, timestamp, write_json
 
 
 def build_index(entries: Dict[str,Any], states: Dict[str,Any], *, repository: str) -> Dict[str,Any]:
@@ -39,12 +39,30 @@ def build_index(entries: Dict[str,Any], states: Dict[str,Any], *, repository: st
     return dict(schema_version=1,generated_at=timestamp(),stats_url='https://plugins.yuelibot.org/stats.json',plugins=plugins)
 
 
+def keep_generated_at(previous: Any, current: Dict[str,Any]) -> Dict[str,Any]:
+    """除生成时间外内容未变时沿用上一份索引的 generated_at。
+
+    定时发布每天运行两次，若每次都写入新时间，index.json 总会变化，打包作业便会提交一笔
+    没有实际内容的「更新索引」。
+
+    :param previous: 仓库中现有的索引；文件不存在时为 None。
+    :param current: 本次生成的索引，会被原地修改。
+    :return: current 本身。
+    """
+    if isinstance(previous,dict) and 'generated_at' in previous:
+        if {key:value for key,value in previous.items() if key!='generated_at'}=={key:value for key,value in current.items() if key!='generated_at'}:
+            current['generated_at']=previous['generated_at']
+    return current
+
+
 def main() -> None:
     """读取仓库状态并原子更新 index.json，不访问任何外部服务。"""
     parser=argparse.ArgumentParser()
     parser.add_argument('--root',type=Path,default=Path('.'))
     args=parser.parse_args()
-    write_json(args.root/'index.json',build_index(records(args.root,'entries'),records(args.root,'state'),repository=os.environ['GITHUB_REPOSITORY']))
+    target=args.root/'index.json'
+    index=build_index(records(args.root,'entries'),records(args.root,'state'),repository=os.environ['GITHUB_REPOSITORY'])
+    write_json(target,keep_generated_at(read_json(target),index))
 
 
 if __name__=='__main__':

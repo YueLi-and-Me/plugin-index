@@ -4,7 +4,8 @@
  * 数值取自设计稿 Terminal.dc.html（列表页）与 TerminalDetail.dc.html（详情页）的内联样式，
  * 整理为类名；被 site-templates/ 下全部页面模板引用。
  * 不加载外部资源：等宽字体用随站点发布的 JetBrains Mono 拉丁子集（OFL 许可见 fonts/OFL.txt），
- * 中文走系统字体栈。设计稿中带显式颜色的链接悬停时不变色，这里用「类名 + :hover」同写一条规则保持一致，
+ * 中文走系统字体栈。终端窗口铺满视口，标题栏与状态栏用 sticky 固定在顶部和底部，正文在两者之间滚动。
+ * 设计稿中带显式颜色的链接悬停时不变色，这里用「类名 + :hover」同写一条规则保持一致，
  * 否则全局 a:hover 会把琥珀底按钮的文字也染成琥珀色而看不见。
  */
 
@@ -33,10 +34,15 @@
   --blue: #7FB4FF;
   --mono: 'JetBrains Mono', "PingFang SC", "Microsoft YaHei", "Noto Sans SC", monospace;
   --sans: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  /* 标题栏与状态栏的固定高度（px），同时用作滚动留白，二者改动要同步 */
+  --titlebar-height: 45px;
+  --statusbar-height: 36px;
   color-scheme: dark;
 }
 
-html { -webkit-text-size-adjust: 100%; }
+/* 滚动留白：键盘选中行时 scrollIntoView 与锚点跳转会让出固定的标题栏和状态栏，
+   否则被选中的行会停在状态栏下面看不见。 */
+html { -webkit-text-size-adjust: 100%; scroll-padding-top: calc(var(--titlebar-height) + 12px); scroll-padding-bottom: calc(var(--statusbar-height) + 12px); }
 body { margin: 0; background: var(--bg); }
 a { color: var(--text); text-decoration: none; }
 a:hover { color: var(--amber); }
@@ -45,12 +51,14 @@ input::placeholder { color: var(--faint); }
 :focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
 .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
 
-/* 外框与终端窗口 */
-.page { min-height: 100vh; background: var(--bg); color: var(--text); font-family: var(--mono); padding: 40px 20px 56px; box-sizing: border-box; }
-.window { max-width: 1180px; margin: 0 auto; border: 1px solid var(--line); border-radius: 12px; background: var(--window); box-shadow: 0 30px 80px rgba(0,0,0,.5); overflow: hidden; }
+/* 终端窗口铺满视口：纵向 flex 让正文撑开剩余高度，内容很短时状态栏仍贴在视口底部。
+   窗口及其祖先不得设 overflow: hidden，否则 sticky 会以窗口本身为滚动容器而失效。 */
+.page { background: var(--bg); color: var(--text); font-family: var(--mono); }
+.window { display: flex; flex-direction: column; min-height: 100vh; min-height: 100dvh; background: var(--window); }
+.window > main { flex: 1 0 auto; }
 
 /* 标题栏：三个圆点、标签页导航、右侧链接与 yueli@plugins */
-.titlebar { display: flex; align-items: stretch; justify-content: space-between; flex-wrap: wrap; min-height: 44px; background: var(--titlebar); border-bottom: 1px solid var(--line); font-size: 13px; }
+.titlebar { position: sticky; top: 0; z-index: 10; display: flex; align-items: stretch; justify-content: space-between; flex-wrap: wrap; min-height: 44px; background: var(--titlebar); border-bottom: 1px solid var(--line); font-size: 13px; }
 .titlebar-group { display: flex; align-items: stretch; flex-wrap: wrap; }
 .dots { display: flex; align-items: center; gap: 8px; padding: 0 16px; min-height: 44px; }
 .dots span { width: 12px; height: 12px; border-radius: 50%; background: var(--dot); }
@@ -137,7 +145,8 @@ input::placeholder { color: var(--faint); }
 .summary .warning { margin: 18px 0 0; font-family: var(--sans); font-size: 13px; line-height: 1.7; color: var(--faint); }
 
 /* 底部琥珀色状态栏 */
-.statusbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; min-height: 36px; padding: 0 16px; background: var(--amber); color: var(--amber-ink); font-size: 12px; }
+.statusbar { position: sticky; bottom: 0; z-index: 10; display: flex; align-items: center; justify-content: space-between; gap: 12px; height: var(--statusbar-height); padding: 0 16px; background: var(--amber); color: var(--amber-ink); font-size: 12px; white-space: nowrap; }
+.statusbar > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 .statusbar .mode { font-weight: 700; }
 .statusbar kbd { font-family: inherit; }
 
@@ -170,7 +179,7 @@ input::placeholder { color: var(--faint); }
 .aside .warning { margin: 0; padding-top: 16px; border-top: 1px dashed var(--line); font-family: var(--sans); font-size: 12px; line-height: 1.7; color: var(--faint); }
 
 /* README：第三方内容，统一约束宽度，代码块与表格在自身盒子里滚动 */
-.readme { font-size: 15px; line-height: 1.95; color: var(--text-soft); overflow-wrap: anywhere; }
+.readme { max-width: 920px; font-size: 15px; line-height: 1.95; color: var(--text-soft); overflow-wrap: anywhere; }
 .readme > :first-child { margin-top: 0; }
 .readme p { margin: 16px 0 0; }
 .readme h1, .readme h2, .readme h3, .readme h4, .readme h5, .readme h6 { margin: 28px 0 0; line-height: 1.5; color: var(--text-strong); }
@@ -211,9 +220,13 @@ input::placeholder { color: var(--faint); }
 .prose ol { padding-left: 24px; }
 .actions { margin-top: 24px; display: flex; gap: 12px; flex-wrap: wrap; }
 
-/* 手机宽度：收窄外边距；标题栏与各区块本身可换行，只有表格在盒子里横向滚动 */
+/* 手机宽度：收窄外边距；标题栏改为单行横向滑动，保持固定高度，
+   否则换成多行会占掉小屏的大半高度。各区块可换行，只有表格在盒子里横向滚动。 */
 @media (max-width: 640px) {
-  .page { padding: 16px 10px 32px; }
+  .titlebar { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; }
+  .titlebar::-webkit-scrollbar { display: none; }
+  .titlebar-group, .tabs { flex: none; flex-wrap: nowrap; }
+  .tab, .titlebar-link, .titlebar-host { white-space: nowrap; }
   .content, .content.detail { padding: 22px 16px 26px; }
   .headline h1 { font-size: 32px; }
   .detail-title h1 { font-size: 28px; }

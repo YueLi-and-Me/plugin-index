@@ -115,6 +115,27 @@ def test_build_index_protocol(payload):
     assert set(record)=={'version','commit','host_application','python_dependencies','downloads','sha256','size','published_at','yanked'}
 
 
+def test_build_index_keeps_time_when_unchanged(tmp_path,payload,monkeypatch):
+    """内容不变时 index.json 逐字节不变，有新版本时才换生成时间。"""
+    build=module('build_index')
+    monkeypatch.setenv('GITHUB_REPOSITORY','owner/index')
+    monkeypatch.setattr('sys.argv',['build_index','--root',str(tmp_path)])
+    monkeypatch.setattr(build,'timestamp',lambda:'2026-10-27T00:00:00Z')
+    build.main()
+    first=(tmp_path/'index.json').read_bytes()
+    monkeypatch.setattr(build,'timestamp',lambda:'2026-10-28T00:00:00Z')
+    build.main()
+    assert (tmp_path/'index.json').read_bytes()==first
+    (tmp_path/'entries').mkdir()
+    (tmp_path/'entries/test.plugin.json').write_text(json.dumps({'repository':'https://example.org/repo','maintainers':['maintainer'],'tags':['测试']}),encoding='utf-8')
+    (tmp_path/'state').mkdir()
+    (tmp_path/'state/test.plugin.json').write_text(json.dumps({'1.0.0':{'status':'approved','commit':'a'*40,'sha256':'b'*64,'size':123,
+        'published_at':'2026-10-27T00:00:00Z','release_tag':'test.plugin-v1.0.0','manifest':payload}}),encoding='utf-8')
+    build.main()
+    raw=json.loads((tmp_path/'index.json').read_text(encoding='utf-8'))
+    assert raw['generated_at']=='2026-10-28T00:00:00Z' and [row['id'] for row in raw['plugins']]==['test.plugin']
+
+
 def test_workflow_privilege_boundary():
     """发布仅允许手动和定时；审核工作流禁止部署凭证。"""
     root=Path(__file__).resolve().parents[1]/'.github/workflows'

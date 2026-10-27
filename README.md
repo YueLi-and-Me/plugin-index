@@ -94,9 +94,9 @@ node --test 'worker/test/*.test.js' 'tests/js/*.test.cjs'
 生成站点，执行 `worker/schema.sql` 建表（幂等），再 `wrangler deploy`。站点只走自定义域名
 `plugins.yuelibot.org`，不启用 `workers.dev`，后者在中国大陆被 DNS 污染。
 
-上线前维护者需要：
+计数库 `yueli-plugins` 已建好，`database_id` 写在 `wrangler.toml`；换 Cloudflare 账号部署时
+需重新执行 `wrangler d1 create yueli-plugins` 并替换。上线前维护者还需要：
 
-- 在 Cloudflare 执行 `wrangler d1 create yueli-plugins`，把输出的 `database_id` 填进 `wrangler.toml`；
 - 建立 `production` 环境，配置 `CLOUDFLARE_API_TOKEN`（Workers 脚本、D1 编辑与自定义域名权限）
   与 `CLOUDFLARE_ACCOUNT_ID` 两个 secrets。
 
