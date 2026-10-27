@@ -147,7 +147,7 @@ def test_large_source_and_trusted_binary_still_manual(tmp_path,payload):
     assert not instance.run(12)['publish'] and not calls
     tree.pop('large.py'); tree['module.dll']=('100644',b'binary')
     (tmp_path/'trusted_repositories.json').write_text('["https://example.org/repo"]')
-    assert not instance.run(12)['publish'] and not calls
+    assert not instance.run(12,comment={'body':'/review','user':{'login':'maintainer'}})['publish'] and not calls
 
 
 def test_registered_pass_and_budget_ledger(tmp_path,payload):
@@ -157,9 +157,20 @@ def test_registered_pass_and_budget_ledger(tmp_path,payload):
     assert not instance.run(12)['publish'] and not calls
     github.comments=[]
     (tmp_path/'state/issues/12.json').unlink()
-    result=instance.run(12)
+    result=instance.run(12,comment={'body':'/review','user':{'login':'maintainer'}})
     assert result['publish'] and result['close'] and len(calls)==1
     assert json.loads((tmp_path/'state/test.plugin.json').read_text(encoding='utf-8'))['1.0.0']['status']=='approved'
+
+
+def test_automatic_trigger_reviews_once(tmp_path,payload):
+    """opened 与 labeled 先后触发时只审一次；维护者 /review 才会重审。"""
+    instance,github,_,calls=engine(tmp_path,payload,model_result=verdict(decision='manual_review',reviewed=False,summary='证据不足'))
+    instance.run(12)
+    assert len(calls)==1 and len(github.comments)==2
+    instance.run(12)
+    assert len(calls)==1 and len(github.comments)==2
+    instance.run(12,comment={'body':'/review','user':{'login':'maintainer'}})
+    assert len(calls)==2
 
 
 def test_review_workflow_dispatch_and_concurrency():

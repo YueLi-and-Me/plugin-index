@@ -251,6 +251,11 @@ class ReviewEngine:
             trusted=entry['repository'] in read_json(self.root/'trusted_repositories.json',[])
             for version in targets:
                 row=state[version]
+                # 自动触发只审一次，重审须由维护者评论 /review。
+                # 表单建 Issue 时 opened 与 labeled 两个事件同时触发，第二次运行在第一次推送状态后才开始；
+                # 不跳过已有结论的版本，同一版本会被再审一遍，多耗一次模型调用并重复评论。
+                if command is None and 'review' in row:
+                    continue
                 if version in blocked.get(plugin_id,[]):
                     self._say(number,f'{version} 已被拒绝，不能再次收录')
                     continue

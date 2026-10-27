@@ -218,8 +218,12 @@ def test_git_snapshot_and_issue_dispatch_list(tmp_path,payload,monkeypatch):
     assert len(calls)==1
 
 
-def test_tree_matches_published_package(tmp_path,payload):
-    """export-ignore 的测试文件不进发布包，检查读取的文件集合与插件包完全一致。"""
+def test_tree_matches_published_package(tmp_path,payload,monkeypatch):
+    """export-ignore 的测试文件不进发布包，检查读取的文件集合与插件包完全一致。
+
+    克隆目录与包路径照工作流写成相对仓库根的路径，覆盖 git -C 下相对输出路径落错目录的问题。
+    """
+    monkeypatch.chdir(tmp_path)
     source=tmp_path/'upstream'; (source/'tests').mkdir(parents=True)
     def git(*args):
         return subprocess.check_output(['git','-C',str(source),*args])
@@ -230,11 +234,12 @@ def test_tree_matches_published_package(tmp_path,payload):
     (source/'.gitattributes').write_text('tests/ export-ignore\n',encoding='utf-8')
     git('add','.'); git('commit','-m','test')
     commit=git('rev-parse','HEAD').decode().strip()
-    repo=module('common').GitRepository(source.as_uri(),tmp_path/'clone')
+    repo=module('common').GitRepository(source.as_uri(),Path('.cache/sources/test.plugin'))
     repo.fetch(commit)
     tree=repo.tree(commit)
     assert set(tree)=={'.gitattributes','_manifest.json','plugin.py'}
-    package=tmp_path/'test.plugin.zip'
+    package=Path('.cache/reviews/test.plugin-1.0.0.zip')
+    package.parent.mkdir(parents=True)
     repo.archive(commit,'test.plugin',package)
     with ZipFile(package) as archive:
         assert {name.removeprefix('test.plugin/') for name in archive.namelist() if not name.endswith('/')}==set(tree)

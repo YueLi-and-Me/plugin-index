@@ -124,7 +124,9 @@ class GitRepository:
 
     def archive(self, commit: str, plugin_id: str, target: Path) -> None:
         """固定 commit 打包到 target，顶层目录固定为已校验的插件 id。"""
-        self.run('archive','--format=zip',f'--prefix={identity(plugin_id)}/','-o',str(target),commit)
+        # 输出路径必须先转为绝对路径：run() 以 git -C 切到克隆目录执行，相对路径会落到克隆目录下
+        # 不存在的子目录，git archive 以 128 退出。工作流的仓库根是 '.'，审核与打包都传相对路径。
+        self.run('archive','--format=zip',f'--prefix={identity(plugin_id)}/','-o',str(target.resolve()),commit)
 
     def diff(self, previous: str, current: str) -> str:
         """读取两个固定提交的差异，关闭外部 diff 与文本转换器。"""
