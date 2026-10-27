@@ -1,0 +1,9 @@
+{
+  "name": "yueli-plugins-worker",
+  "private": true,
+  "type": "module",
+  "description": "月璃插件商店下载计数 Worker；无运行依赖，由 wrangler 直接上传 src/index.js",
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  }
+}

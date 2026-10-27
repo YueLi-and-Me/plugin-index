@@ -1,0 +1,40 @@
+{#
+  页面片段宏：命令提示行、开发者与仓库链接、下载次数占位、一键安装区块。
+  被 index.html、plugin.html、submit.html、404.html 导入。一键安装区块的 data-* 属性
+  由 static/install.js 读取：data-install 标记区块，data-install-link 为跳转链接，
+  data-panel-label / data-panel-edit / data-panel-form 为地址显示、「修改」与原地输入框。
+#}
+{% macro prompt(command) %}
+<p class="prompt"><span class="user">yueli</span><span class="at">@</span><span class="host">plugins</span> <span class="path">~ $</span> {{ command }}</p>
+{% endmacro %}
+
+{% macro author(plugin) %}
+{% if plugin.author_url %}<a class="link" href="{{ plugin.author_url }}" rel="noopener">{{ plugin.author_name }} ↗</a>{% else %}<span>{{ plugin.author_name }}</span>{% endif %}
+{% endmacro %}
+
+{% macro repository(plugin) %}
+{% if plugin.repository_url %}<a class="link" href="{{ plugin.repository_url }}" rel="noopener">{{ plugin.repository_label }} ↗</a>{% else %}<span>{{ plugin.repository_label }}</span>{% endif %}
+{% endmacro %}
+
+{# 下载次数先显示「—」，store.js 取到 /stats.json 后替换；取不到时保持「—」。 #}
+{% macro downloads(plugin, version=None) %}
+<span data-downloads="{{ plugin.id }}"{% if version %} data-version="{{ version }}"{% endif %}>—</span>
+{% endmacro %}
+
+{% macro install_link(plugin, label, extra_class='') %}
+<a class="button{{ extra_class }}" data-install-link data-plugin="{{ plugin.id }}" data-version="{{ plugin.latest.version }}" href="{{ default_panel }}/plugins?install={{ plugin.id | urlencode }}&amp;version={{ plugin.latest.version | urlencode }}">{{ label }}</a>
+{% endmacro %}
+
+{% macro panel_edit(plugin, prefix) %}
+<button type="button" class="linklike" data-panel-edit aria-expanded="false" aria-controls="panel-form-{{ prefix }}-{{ plugin.id }}">{{ caller() }}</button>
+{% endmacro %}
+
+{% macro panel_form(plugin, prefix) %}
+<form class="panel-form" id="panel-form-{{ prefix }}-{{ plugin.id }}" data-panel-form hidden novalidate>
+<label class="sr-only" for="panel-input-{{ prefix }}-{{ plugin.id }}">管理面板地址</label>
+<input id="panel-input-{{ prefix }}-{{ plugin.id }}" type="text" inputmode="url" autocomplete="url" spellcheck="false" placeholder="http://127.0.0.1:7999">
+<button type="submit">保存</button>
+<button type="button" data-panel-cancel>取消</button>
+<p class="error" data-panel-error role="alert" hidden>只接受 http:// 或 https:// 开头的地址</p>
+</form>
+{% endmacro %}

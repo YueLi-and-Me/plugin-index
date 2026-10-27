@@ -1,0 +1,107 @@
+{#
+  插件详情页（/plugins/<id>/）：README、版本表、开发者、仓库、许可证、Python 依赖与安装方法。
+  README 已由 build_site.render_readme 清洗为安全 HTML；撤回版本不给下载链接。
+  快捷键（Esc 返回列表、/ 回列表并聚焦搜索）由 store.js 绑定。
+#}
+{% extends 'base.html' %}
+{% import '_macros.html' as ui with context %}
+{% block title %}{{ plugin.name }} · 月璃插件商店{% endblock %}
+{% block description %}{{ plugin.description }}{% endblock %}
+{% block body %}
+<main class="content detail">
+{{ ui.prompt('plugin show ' ~ plugin.id) }}
+<a class="back" href="/">← 全部插件</a>
+
+<div class="detail-title">
+<h1>{{ plugin.name }}</h1>
+<span class="version">{{ plugin.current.version }}</span>
+{% for tag in plugin.tags %}
+<span class="chip">{{ tag }}</span>
+{% endfor %}
+</div>
+<p class="meta"><span>开发者 {{ ui.author(plugin) }}</span><span>仓库 {{ ui.repository(plugin) }}</span></p>
+
+<div class="columns">
+<article class="article">
+{% if plugin.readme %}
+<div class="readme">{{ plugin.readme }}</div>
+{% else %}
+<p class="readme-empty"># 这个插件没有提供 README。</p>
+{% endif %}
+
+{% if plugin.current.dependencies %}
+<h2 class="section-title">Python 依赖</h2>
+<ul class="deps">
+{% for requirement in plugin.current.dependencies %}
+<li>{{ requirement }}</li>
+{% endfor %}
+</ul>
+<p class="deps-note">管理面板关闭了自动安装依赖时，需要手动安装：在月璃所在目录执行下面的命令，然后重启月璃。</p>
+<pre class="command">uv pip install{% for requirement in plugin.current.dependencies %} "{{ requirement }}"{% endfor %}</pre>
+{% endif %}
+
+<h2 class="section-title">版本</h2>
+<div class="table-scroll">
+<div class="versions" role="table" aria-label="版本列表">
+<div class="version-row versions-head" role="row">
+<span role="columnheader">版本</span><span role="columnheader">支持月璃</span><span role="columnheader">发布日期</span><span role="columnheader">下载</span><span role="columnheader"><span class="sr-only">下载包</span></span>
+</div>
+{% for row in plugin.versions %}
+<div class="version-item{% if row.yanked %} yanked{% endif %}" role="row">
+<div class="version-row">
+<span class="number" role="cell">{{ row.version }}</span>
+<span role="cell">{{ row.range }}</span>
+<span role="cell">{{ row.date }}</span>
+<span role="cell">{{ ui.downloads(plugin, row.version) }}</span>
+<span role="cell">{% if row.yanked %}<span class="button disabled" aria-disabled="true">已撤回</span>{% else %}<a class="button outline" href="{{ row.package }}" download>下载</a>{% endif %}</span>
+</div>
+<p class="version-sha" role="cell">SHA-256 {{ row.sha256 }}</p>
+</div>
+{% endfor %}
+</div>
+</div>
+</article>
+
+<aside class="aside" aria-label="安装">
+<dl class="facts">
+<dt>开发者</dt><dd>{{ ui.author(plugin) }}</dd>
+<dt>许可证</dt><dd>{{ plugin.license }}</dd>
+<dt>支持月璃</dt><dd>{{ plugin.current.range }}</dd>
+<dt>Python 依赖</dt><dd class="sans">{% if plugin.current.dependencies %}{{ plugin.current.dependencies | join('、') }}{% else %}无{% endif %}</dd>
+<dt>下载</dt><dd>{{ ui.downloads(plugin) }}</dd>
+<dt>仓库</dt><dd>{{ ui.repository(plugin) }}</dd>
+</dl>
+
+{% if plugin.latest %}
+<div class="aside-block" data-install>
+{{ ui.install_link(plugin, '一键安装 ' ~ plugin.latest.version, ' install') }}
+<p class="panel-note">将打开你的管理面板 <span class="address" data-panel-label>{{ default_panel | replace('http://', '') }}</span>，确认后安装 · {% call ui.panel_edit(plugin, 'detail') %}修改地址{% endcall %}</p>
+{{ ui.panel_form(plugin, 'detail') }}
+<h2 class="heading-gap">或在管理面板「插件市场」搜索</h2>
+<div class="copy-field">
+<code id="plugin-id">{{ plugin.id }}</code>
+<button type="button" aria-label="复制插件 ID" data-copy="plugin-id"><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="11" height="11" rx="2"></rect><path d="M5 15V5a1 1 0 0 1 1-1h9"></path></svg></button>
+</div>
+</div>
+
+<div class="aside-block">
+<h2>或下载后解压到 plugins/</h2>
+<a class="button" href="{{ plugin.latest.package }}" download><svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg>下载 {{ plugin.latest.version }}</a>
+<p class="sha">SHA-256 {{ plugin.latest.sha256 }}</p>
+</div>
+{% else %}
+<div class="aside-block">
+<p class="panel-note"># 全部版本均已撤回，暂无可安装的版本。</p>
+</div>
+{% endif %}
+
+<p class="warning"># 插件与月璃同进程运行，能读到配置与数据，安装前请确认来源。</p>
+</aside>
+</div>
+</main>
+{% endblock %}
+{% block statusbar %}
+<span class="mode">详情</span>
+<span><kbd>Esc</kbd> 返回 &#160; <kbd>/</kbd> 搜索</span>
+<span>{{ plugin.id }}</span>
+{% endblock %}

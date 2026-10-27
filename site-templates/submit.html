@@ -1,0 +1,34 @@
+{#
+  登记说明页（/submit/）：链接登记表单与插件开发文档，说明登记后的审核与收录流程。
+#}
+{% extends 'base.html' %}
+{% import '_macros.html' as ui with context %}
+{% block title %}提交插件 · 月璃插件商店{% endblock %}
+{% block description %}把你的插件登记进月璃插件商店。{% endblock %}
+{% block body %}
+<main class="content">
+{{ ui.prompt('plugin submit --help') }}
+<a class="back" href="/">← 全部插件</a>
+<div class="detail-title">
+<h1>提交插件</h1>
+</div>
+<div class="prose">
+<p># 填一张登记表，审核通过后插件就会出现在商店里。</p>
+<ol>
+<li>按开发文档写好插件：清单里填写作者、许可证和完整的月璃版本区间，只从插件门面导入宿主类型，不要提交 config.toml。</li>
+<li>在插件仓库打 Tag，写成 vX.Y.Z 或 X.Y.Z，并与清单里的版本一致。</li>
+<li>填写登记表：插件 id、仓库地址、分类和说明。首次登记需要维护者批准。</li>
+<li>之后每次发布新 Tag，索引会定时同步、检查与审核，通过后自动收录。</li>
+</ol>
+</div>
+<div class="actions">
+<a class="button" href="https://github.com/YueLi-and-Me/plugin-index/issues/new?template=register.yml">打开登记表单 ↗</a>
+<a class="button outline" href="https://docs.yuelibot.org/dev/guide/plugins/">阅读开发文档 ↗</a>
+</div>
+</main>
+{% endblock %}
+{% block statusbar %}
+<span class="mode">提交</span>
+<span><kbd>Esc</kbd> 返回 &#160; <kbd>/</kbd> 搜索</span>
+<span>plugin-index</span>
+{% endblock %}

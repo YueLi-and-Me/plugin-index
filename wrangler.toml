@@ -1,0 +1,41 @@
+# 月璃插件商店的 Cloudflare Workers 部署配置，由 publish.yml 的 deploy 作业执行
+# `npx --yes wrangler@4 deploy` 读取。静态站点由 scripts/build_site.py 生成到 site/，
+# 下载计数逻辑见 worker/src/index.js，计数表结构见 worker/schema.sql。
+
+# Worker 名称，也是 Cloudflare 控制台里的服务名；改名会新建一个 Worker，旧计数绑定不会跟过去。
+name = "yueli-plugins"
+# Worker 入口，原生 ES Module，不经打包工具；wrangler 直接上传这一个文件。
+main = "worker/src/index.js"
+# 运行时兼容日期，取开工当天；固定后 Cloudflare 运行时升级不会悄悄改变 Worker 行为。
+compatibility_date = "2026-10-27"
+
+# 只通过自定义域名对外服务。workers.dev 在中国大陆被 DNS 污染，国内用户经常打不开，
+# 商店与客户端下载地址统一写 plugins.yuelibot.org；custom_domain = true 让 Cloudflare
+# 自动建 DNS 记录与证书，不需要另配路由区。
+routes = [{ pattern = "plugins.yuelibot.org", custom_domain = true }]
+# 关闭 *.workers.dev 子域：理由同上，并避免同一站点出现第二个可访问入口。
+workers_dev = false
+# 关闭按版本生成的预览地址：预览地址同样位于 workers.dev，且会绕开自定义域名暴露未发布版本。
+preview_urls = false
+
+[assets]
+# 静态站点目录，由 build_site.py 生成，部署作业从 Release 补齐 site/packages/。
+directory = "./site"
+# 在 Worker 中以 env.ASSETS 访问静态资源，计数逻辑先取资源再决定是否计数。
+binding = "ASSETS"
+# 只有这两类路径先进 Worker：插件包需要计数，统计接口需要查 D1；
+# 其余页面由静态资源层直接返回，不消耗 Worker 调用次数。
+run_worker_first = ["/packages/*", "/stats.json"]
+# /plugins/<id>/ 这类目录地址映射到 index.html，并把缺少末尾斜杠的地址重定向到带斜杠的形式，
+# 与页面里的链接写法一致。
+html_handling = "auto-trailing-slash"
+# 未知路径返回站点根目录的 404.html，并带 404 状态码。
+not_found_handling = "404-page"
+
+[[d1_databases]]
+# 在 Worker 中以 env.DB 访问计数库。
+binding = "DB"
+# 库名，部署作业执行 `wrangler d1 execute yueli-plugins` 时按此名称查找。
+database_name = "yueli-plugins"
+# 由维护者执行 `wrangler d1 create yueli-plugins` 建库后，把输出的 database_id 填到这里。
+database_id = "REPLACE_WITH_D1_ID"

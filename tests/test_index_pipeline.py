@@ -11,6 +11,7 @@ import json
 import subprocess
 import httpx
 import pytest
+import yaml
 
 
 def module(name):
@@ -126,6 +127,44 @@ def test_workflow_privilege_boundary():
     assert 'actions: write' in sync and 'gh workflow run review.yml' in sync
     for path in root.glob('*.yml'):
         if path.name!='publish.yml': assert 'CLOUDFLARE_' not in path.read_text(encoding='utf-8')
+
+
+def workflow(name):
+    """解析工作流 YAML；PyYAML 把键 on 读成布尔 True，这里统一改回 on。"""
+    data=yaml.safe_load((Path(__file__).resolve().parents[1]/'.github/workflows'/name).read_text(encoding='utf-8'))
+    if True in data: data['on']=data.pop(True)
+    return data
+
+
+def test_deploy_credentials_isolated():
+    """部署凭证只在 deploy 作业；审核与同步不含任何 Cloudflare 字样。"""
+    publish=workflow('publish.yml')
+    assert set(publish['on'])=={'workflow_dispatch','schedule'}
+    deploy=publish['jobs']['deploy']
+    assert deploy['needs']=='package' and deploy['environment']=='production'
+    assert 'CLOUDFLARE_API_TOKEN' in json.dumps(deploy,ensure_ascii=False)
+    for key,value in publish.items():
+        if key!='jobs': assert 'CLOUDFLARE_' not in json.dumps(value,ensure_ascii=False)
+    for name,job in publish['jobs'].items():
+        if name!='deploy': assert 'CLOUDFLARE_' not in json.dumps(job,ensure_ascii=False)
+    root=Path(__file__).resolve().parents[1]/'.github/workflows'
+    for name in ('review.yml','sync.yml'):
+        assert 'CLOUDFLARE_' not in (root/name).read_text(encoding='utf-8')
+    commands=[step.get('run','') for step in deploy['steps']]
+    assert any('build_site' in run for run in commands)
+    assert any('wrangler@4 d1 execute yueli-plugins --remote --file worker/schema.sql' in run for run in commands)
+    assert any('wrangler@4 deploy' in run for run in commands)
+
+
+def test_review_dispatch_contract():
+    """同步建审核 Issue 后显式分发，审核工作流接受 issue_number 输入。"""
+    sync=workflow('sync.yml')
+    assert sync['permissions']['actions']=='write'
+    steps=[step.get('run','') for step in sync['jobs']['sync']['steps']]
+    created=next(index for index,run in enumerate(steps) if 'scripts.sync' in run)
+    assert any('gh workflow run review.yml' in run for run in steps[created+1:])
+    review=workflow('review.yml')
+    assert 'issue_number' in review['on']['workflow_dispatch']['inputs']
 
 
 def test_git_snapshot_and_issue_dispatch_list(tmp_path,payload,monkeypatch):

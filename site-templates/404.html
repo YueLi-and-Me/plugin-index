@@ -1,0 +1,21 @@
+{#
+  找不到页面（/404.html）：Cloudflare 静态资源按 not_found_handling = "404-page" 对任意
+  未知路径返回本页，因此页内全部链接与资源都用站点根路径。
+#}
+{% extends 'base.html' %}
+{% import '_macros.html' as ui with context %}
+{% block title %}找不到页面 · 月璃插件商店{% endblock %}
+{% block body %}
+<main class="content">
+{{ ui.prompt('cd ./requested-page') }}
+<p class="comment"># 没有这个页面：可能地址写错了，或插件已经下架。</p>
+<div class="actions">
+<a class="button" href="/">回到插件列表</a>
+</div>
+</main>
+{% endblock %}
+{% block statusbar %}
+<span class="mode">404</span>
+<span><kbd>Esc</kbd> 返回 &#160; <kbd>/</kbd> 搜索</span>
+<span>not found</span>
+{% endblock %}

@@ -57,3 +57,48 @@
 审核作业需要 `REVIEW_API_BASE`、`REVIEW_API_KEY`、`REVIEW_MODEL` 三个 Actions secrets。
 审核接口采用通用兼容请求格式，代码不绑定服务商。模型审核不能保证安全，Python 依赖
 库自身的源码不在审核范围内，安装者仍需阅读同进程权限提示。
+
+## 商店网站
+
+`scripts/build_site.py` 读取 `index.json` 与 `readme/<id>/<版本>.md`，用 `site-templates/`
+里的 Jinja2 模板生成静态站点到 `site/`：插件列表 `/`、详情页 `/plugins/<id>/`、登记说明
+`/submit/`、`/404.html`，以及与仓库逐字节相同的 `/index.json`。README 经 markdown-it-py
+渲染后用 nh3 白名单清洗；页面不加载任何外部资源，等宽字体随站点发布（JetBrains Mono
+拉丁子集，许可证见 `site-templates/static/fonts/OFL.txt`），中文使用系统字体。
+插件包 `/packages/<id>/<版本>.zip` 是 Release 附件的副本，生成时逐个核对大小与摘要，
+缺包或不符直接失败。
+
+本地生成与预览（没有 Release 附件时加 `--allow-missing-packages`，下载链接会是 404）：
+
+```bash
+uv sync
+uv run python -m scripts.build_site --allow-missing-packages
+python -m http.server 8000 --directory site
+```
+
+用样例数据预览时把 `--root` 指向 `tests/fixtures/storefront`。下载次数来自 Worker 的
+`/stats.json`，静态预览没有这个接口，页面显示「—」。一键安装按钮跳到部署者自己的管理面板
+`<地址>/plugins?install=<id>&version=<版本>`，默认 `http://127.0.0.1:7999`，访客可在页面上修改，
+保存在浏览器本地。
+
+`worker/src/index.js` 是下载计数 Worker：`/packages/*` 先交给静态资源，只有 GET、无 Range
+且资源返回 200 时才把 D1 表 `downloads` 对应行加一；`/stats.json` 汇总计数，缓存 300 秒。
+不读取、不保存 IP、User-Agent 等请求方信息。Worker 用例用 Node 内置 `node:sqlite` 模拟 D1：
+
+```bash
+node --test 'worker/test/*.test.js' 'tests/js/*.test.cjs'
+```
+
+部署由 `publish.yml` 的 `deploy` 作业完成，只在手动与定时触发、打包作业成功后运行：
+检出 main，从 Release 补齐 `site/packages/` 中缺少的包（已下载的用 Actions 缓存保存），
+生成站点，执行 `worker/schema.sql` 建表（幂等），再 `wrangler deploy`。站点只走自定义域名
+`plugins.yuelibot.org`，不启用 `workers.dev`，后者在中国大陆被 DNS 污染。
+
+上线前维护者需要：
+
+- 在 Cloudflare 执行 `wrangler d1 create yueli-plugins`，把输出的 `database_id` 填进 `wrangler.toml`；
+- 建立 `production` 环境，配置 `CLOUDFLARE_API_TOKEN`（Workers 脚本、D1 编辑与自定义域名权限）
+  与 `CLOUDFLARE_ACCOUNT_ID` 两个 secrets。
+
+部署凭证只出现在 `deploy` 作业：审核作业要读第三方插件源码，凭证与之同处一个作业时，
+插件里藏的代码就可能把凭证带出去，进而替换商店里的插件包。

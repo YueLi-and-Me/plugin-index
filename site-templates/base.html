@@ -1,0 +1,44 @@
+{#
+  全部页面的外壳：终端窗口、标题栏（三个圆点、标签页导航、右侧链接与 yueli@plugins）、
+  命令提示行与底部琥珀色状态栏。由 scripts/build_site.py 渲染，子模板填充各 block。
+  页面只引用站内资源：/static/style.css、/static/store.js、/static/install.js、/logo.png、/favicon.png。
+#}
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}月璃插件商店{% endblock %}</title>
+<meta name="description" content="{% block description %}月璃插件商店：经过审核的月璃插件，一键跳转到你的管理面板安装。{% endblock %}">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="preload" href="/static/fonts/JetBrainsMono-Regular.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body data-page="{{ page }}" data-stats="{{ stats_path }}">
+<div class="page">
+<div class="window">
+<header class="titlebar">
+<div class="titlebar-group">
+<span class="dots" aria-hidden="true"><span></span><span></span><span></span></span>
+<nav class="tabs" aria-label="主导航">
+<a class="tab{% if page in ('list', 'detail') %} active{% endif %}" href="/"{% if page in ('list', 'detail') %} aria-current="page"{% endif %}><img src="/logo.png" alt="">插件商店</a>
+<a class="tab" href="https://docs.yuelibot.org/dev/guide/plugins/">开发文档</a>
+<a class="tab{% if page == 'submit' %} active{% endif %}" href="/submit/"{% if page == 'submit' %} aria-current="page"{% endif %}>提交插件 ↗</a>
+</nav>
+</div>
+<div class="titlebar-group">
+<a class="titlebar-link" href="https://docs.yuelibot.org/">文档站 ↗</a>
+<a class="titlebar-link" href="https://github.com/YueLi-and-Me/YueLiBot"><svg aria-hidden="true" width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.56v-2c-3.2.7-3.87-1.37-3.87-1.37-.52-1.33-1.28-1.69-1.28-1.69-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 5.79 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.25 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.68.8.56A11.5 11.5 0 0 0 23.5 12C23.5 5.65 18.35.5 12 .5z"></path></svg>GitHub ↗</a>
+<span class="titlebar-host">yueli@plugins</span>
+</div>
+</header>
+{% block body %}{% endblock %}
+<footer class="statusbar">
+{% block statusbar %}{% endblock %}
+</footer>
+</div>
+</div>
+<script src="/static/install.js"></script>
+<script src="/static/store.js"></script>
+</body>
+</html>

@@ -3,7 +3,7 @@ name = "yueli-plugin-index"
 version = "0.1.0"
 description = "月璃插件登记、检查与索引构建工具"
 requires-python = ">=3.12"
-dependencies = ["httpx>=0.28", "packaging>=24", "jsonschema>=4.23"]
+dependencies = ["httpx>=0.28", "packaging>=24", "jsonschema>=4.23", "Jinja2>=3.1", "markdown-it-py>=3", "nh3>=0.2.18"]
 
 [dependency-groups]
 dev = ["pytest>=8", "PyYAML>=6"]

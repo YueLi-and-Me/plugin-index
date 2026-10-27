@@ -1,0 +1,89 @@
+{#
+  插件列表页（/）：搜索、分类筛选、插件表格与选中插件的详情块。
+  无脚本时首个插件为选中状态、其余详情块隐藏；store.js 接管选择、筛选与快捷键，
+  install.js 接管一键安装地址。数据来自 build_site.py 整理的 plugins 与 tags。
+#}
+{% extends 'base.html' %}
+{% import '_macros.html' as ui with context %}
+{% block body %}
+<main class="content">
+{{ ui.prompt('plugin list --all') }}
+<div class="headline">
+<h1>月璃插件商店</h1>
+<span class="badge">已收录 {{ plugins | length }} · 全部经过审核</span>
+</div>
+<p class="comment"># 挑一个装上，重启之后月璃就会用。</p>
+
+<label class="search">
+<span class="caret" aria-hidden="true">❯</span>
+<input id="search" type="search" aria-label="搜索插件" placeholder="搜索名称、用途或插件 ID" autocomplete="off" spellcheck="false">
+<span class="cursor" aria-hidden="true"></span>
+</label>
+
+<div class="filters" role="group" aria-label="按分类筛选">
+<button type="button" class="filter" data-tag="" aria-pressed="true">[ 全部 {{ plugins | length }} ]</button>
+{% for tag in tags %}
+<button type="button" class="filter" data-tag="{{ tag }}" aria-pressed="false">[ {{ tag }} ]</button>
+{% endfor %}
+</div>
+
+<div class="table-scroll">
+<div class="table" role="table" aria-label="插件列表">
+<div class="table-row table-head" role="row">
+<span role="columnheader">名称</span><span role="columnheader">说明</span><span role="columnheader">开发者</span><span role="columnheader">版本</span><span role="columnheader">支持月璃</span><span role="columnheader">下载</span><span role="columnheader"><span class="sr-only">操作</span></span>
+</div>
+{% for plugin in plugins %}
+<div class="table-row plugin-row{% if loop.first %} selected{% endif %}" role="row" data-id="{{ plugin.id }}" data-search="{{ plugin.search }}" data-tags='{{ plugin.tags | tojson }}'{% if loop.first %} aria-current="true"{% endif %}>
+<span class="name" role="cell"><span class="mark" aria-hidden="true">▸</span> {{ plugin.name }}</span>
+<span class="desc" role="cell">{{ plugin.description }}</span>
+<span class="author" role="cell">{{ plugin.author_name }}</span>
+<span role="cell">{{ plugin.current.version }}</span>
+<span role="cell">{{ plugin.current.range }}</span>
+<span role="cell">{{ ui.downloads(plugin) }}</span>
+<span role="cell"><a class="view" href="/plugins/{{ plugin.id }}/">查看<span class="enter"> ↵</span></a></span>
+</div>
+{% endfor %}
+<p class="empty" id="empty" hidden># 没有找到匹配的插件</p>
+</div>
+</div>
+
+{% for plugin in plugins %}
+<section class="summary" data-summary="{{ plugin.id }}" aria-label="{{ plugin.name }}详情"{% if not loop.first %} hidden{% endif %}>
+<h2>── {{ plugin.name }} v{{ plugin.current.version }} ──────────</h2>
+<div class="summary-body">
+<dl class="facts">
+<dt>开发者</dt><dd>{{ ui.author(plugin) }}</dd>
+<dt>仓库</dt><dd>{{ ui.repository(plugin) }}</dd>
+<dt>许可证</dt><dd>{{ plugin.license }}</dd>
+<dt>依赖</dt><dd class="sans">{% if plugin.current.dependencies %}{{ plugin.current.dependencies | join('、') }}{% else %}无需额外 Python 库{% endif %}</dd>
+<dt>SHA-256</dt><dd class="hash">{{ plugin.current.sha256[:8] }}…{{ plugin.current.sha256[-8:] }}</dd>
+</dl>
+{% if plugin.latest %}
+<div class="steps" data-install>
+<div class="step">
+<span><span class="step-number">1</span>&#160; 打开你的管理面板，确认后安装</span>
+{{ ui.install_link(plugin, '一键安装') }}
+</div>
+<p class="panel-note">管理面板地址 <span class="address" data-panel-label>{{ default_panel | replace('http://', '') }}</span> · {% call ui.panel_edit(plugin, 'list') %}修改{% endcall %}</p>
+{{ ui.panel_form(plugin, 'list') }}
+<div class="step">
+<span><span class="step-number">2</span>&#160; 下载 ZIP，解压到 plugins/，重启</span>
+<a class="button outline" href="{{ plugin.latest.package }}" download>下载 zip</a>
+</div>
+</div>
+{% else %}
+<div class="steps">
+<p class="panel-note"># 全部版本均已撤回，暂无可安装的版本。</p>
+</div>
+{% endif %}
+</div>
+<p class="warning"># 插件与月璃同进程运行，能读到配置与数据，安装前请确认来源。</p>
+</section>
+{% endfor %}
+</main>
+{% endblock %}
+{% block statusbar %}
+<span class="mode">浏览</span>
+<span><kbd>↑↓</kbd> 选择 &#160; <kbd>↵</kbd> 查看 &#160; <kbd>/</kbd> 搜索</span>
+<span>{{ plugins | length }} 个插件</span>
+{% endblock %}

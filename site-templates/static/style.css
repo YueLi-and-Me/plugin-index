@@ -1,0 +1,226 @@
+/*
+ * 月璃插件商店「终端」风格样式，由 scripts/build_site.py 原样复制到 site/static/。
+ *
+ * 数值取自设计稿 Terminal.dc.html（列表页）与 TerminalDetail.dc.html（详情页）的内联样式，
+ * 整理为类名；被 site-templates/ 下全部页面模板引用。
+ * 不加载外部资源：等宽字体用随站点发布的 JetBrains Mono 拉丁子集（OFL 许可见 fonts/OFL.txt），
+ * 中文走系统字体栈。设计稿中带显式颜色的链接悬停时不变色，这里用「类名 + :hover」同写一条规则保持一致，
+ * 否则全局 a:hover 会把琥珀底按钮的文字也染成琥珀色而看不见。
+ */
+
+@font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 400; font-display: swap; src: url('/static/fonts/JetBrainsMono-Regular.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 600; font-display: swap; src: url('/static/fonts/JetBrainsMono-SemiBold.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: 'JetBrains Mono'; font-style: normal; font-weight: 700; font-display: swap; src: url('/static/fonts/JetBrainsMono-Bold.woff2') format('woff2'); unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+
+:root {
+  --bg: #0B0E12;
+  --window: #11151B;
+  --titlebar: #161B22;
+  --panel: #0E1217;
+  --chip: #1C222B;
+  --line: #2A313C;
+  --line-strong: #3A4250;
+  --dot: #3A414C;
+  --text: #D7DEE8;
+  --text-strong: #F2F5FB;
+  --text-soft: #C9D1DE;
+  --text-dim: #A8B2C2;
+  --muted: #9AA6B8;
+  --faint: #8590A2;
+  --amber: #F4B860;
+  --amber-ink: #1A1407;
+  --green: #8FD694;
+  --blue: #7FB4FF;
+  --mono: 'JetBrains Mono', "PingFang SC", "Microsoft YaHei", "Noto Sans SC", monospace;
+  --sans: "PingFang SC", "Microsoft YaHei", "Noto Sans SC", sans-serif;
+  color-scheme: dark;
+}
+
+html { -webkit-text-size-adjust: 100%; }
+body { margin: 0; background: var(--bg); }
+a { color: var(--text); text-decoration: none; }
+a:hover { color: var(--amber); }
+input::placeholder { color: var(--faint); }
+[hidden] { display: none !important; }
+:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0; }
+
+/* 外框与终端窗口 */
+.page { min-height: 100vh; background: var(--bg); color: var(--text); font-family: var(--mono); padding: 40px 20px 56px; box-sizing: border-box; }
+.window { max-width: 1180px; margin: 0 auto; border: 1px solid var(--line); border-radius: 12px; background: var(--window); box-shadow: 0 30px 80px rgba(0,0,0,.5); overflow: hidden; }
+
+/* 标题栏：三个圆点、标签页导航、右侧链接与 yueli@plugins */
+.titlebar { display: flex; align-items: stretch; justify-content: space-between; flex-wrap: wrap; min-height: 44px; background: var(--titlebar); border-bottom: 1px solid var(--line); font-size: 13px; }
+.titlebar-group { display: flex; align-items: stretch; flex-wrap: wrap; }
+.dots { display: flex; align-items: center; gap: 8px; padding: 0 16px; min-height: 44px; }
+.dots span { width: 12px; height: 12px; border-radius: 50%; background: var(--dot); }
+.tabs { display: flex; align-items: stretch; flex-wrap: wrap; }
+.tab, .tab:hover { display: flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 18px; color: var(--muted); border-left: 1px solid var(--line); box-sizing: border-box; }
+.tab:first-child { border-left: 0; }
+.tab:last-child { border-right: 1px solid var(--line); }
+.tab.active, .tab.active:hover { background: var(--window); border-top: 2px solid var(--amber); color: var(--text-strong); }
+.tab img { width: 18px; height: 18px; border-radius: 50%; }
+.titlebar-link, .titlebar-link:hover { display: flex; align-items: center; gap: 7px; min-height: 44px; padding: 0 14px; color: var(--muted); border-left: 1px solid var(--line); }
+.titlebar-host { display: flex; align-items: center; min-height: 44px; padding: 0 16px; color: var(--faint); border-left: 1px solid var(--line); }
+
+/* 正文 */
+.content { padding: 28px 32px 32px; }
+.content.detail { padding: 28px 32px 36px; }
+.prompt { margin: 0; font-size: 14px; overflow-wrap: anywhere; }
+.prompt .user { color: var(--green); }
+.prompt .at, .prompt .path { color: var(--faint); }
+.prompt .host { color: var(--blue); }
+.headline { margin-top: 22px; display: flex; align-items: baseline; gap: 20px; flex-wrap: wrap; }
+.headline h1 { margin: 0; font-family: var(--sans); font-size: 44px; font-weight: 700; color: var(--text-strong); }
+.headline .badge { font-size: 14px; color: var(--green); }
+.comment { margin: 10px 0 0; font-size: 14px; color: var(--faint); }
+
+/* 搜索框：❯ 提示符与琥珀色光标块 */
+.search { margin-top: 26px; display: flex; align-items: center; gap: 12px; height: 52px; padding: 0 16px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); }
+.search .caret { color: var(--amber); font-weight: 700; }
+.search input { flex: 1; min-width: 0; height: 100%; border: 0; outline: none; background: transparent; color: var(--text-strong); font-family: inherit; font-size: 15px; }
+.search .cursor { width: 10px; height: 20px; background: var(--amber); }
+.search:focus-within { border-color: var(--line-strong); }
+
+/* 分类按钮 [ 全部 N ] */
+.filters { margin-top: 16px; display: flex; gap: 10px; flex-wrap: wrap; }
+.filter { height: 44px; padding: 0 16px; border: 1px solid var(--line); border-radius: 6px; background: transparent; color: var(--muted); font-family: inherit; font-size: 14px; cursor: pointer; }
+.filter[aria-pressed="true"] { border-color: var(--amber); background: rgba(244,184,96,.12); color: var(--amber); }
+
+/* 插件表格：放在横向滚动盒子里，窄屏时只有表格滚动，页面本身不横向滚动 */
+/* position: relative 让表格里绝对定位的 .sr-only 文字以滚动盒子为包含块；否则它按页面定位，
+   在窄屏上落到视口右侧之外，把整页撑出横向滚动。 */
+.table-scroll { position: relative; margin-top: 26px; overflow-x: auto; }
+.table { min-width: 940px; }
+.table-row { display: grid; grid-template-columns: 150px minmax(0, 1fr) 140px 70px 130px 70px 70px; gap: 16px; align-items: center; }
+.table-head { padding: 10px 14px; border-bottom: 1px dashed var(--line); font-size: 12px; color: var(--faint); }
+.plugin-row { padding: 14px; border-radius: 6px; font-size: 14px; color: var(--text); cursor: pointer; }
+.plugin-row .mark { visibility: hidden; }
+.plugin-row .desc { font-family: var(--sans); color: var(--text-dim); }
+.plugin-row .author { color: var(--blue); }
+.plugin-row .view, .plugin-row .view:hover { color: var(--faint); }
+.plugin-row .view .enter { display: none; }
+.plugin-row.selected { background: rgba(244,184,96,.10); color: var(--text-strong); }
+.plugin-row.selected .name { color: var(--amber); font-weight: 700; }
+.plugin-row.selected .mark { visibility: visible; }
+.plugin-row.selected .desc { color: var(--text-soft); }
+.plugin-row.selected .view, .plugin-row.selected .view:hover { color: var(--amber); }
+.plugin-row.selected .view .enter { display: inline; }
+.empty { padding: 14px; font-size: 14px; color: var(--faint); }
+
+/* 列表页详情块 ── 名称 vX ── */
+.summary { margin-top: 22px; padding: 22px 24px; border: 1px dashed var(--line-strong); border-radius: 8px; }
+.summary h2 { margin: 0; font-size: 15px; font-weight: 600; color: var(--amber); overflow-wrap: anywhere; }
+.summary-body { margin-top: 16px; display: flex; flex-wrap: wrap; gap: 24px 48px; }
+.summary .facts { flex: 1 1 320px; }
+.summary .steps { flex: 1 1 380px; display: flex; flex-direction: column; gap: 12px; font-family: var(--sans); font-size: 14px; }
+.facts { margin: 0; display: grid; grid-template-columns: 90px minmax(0, 1fr); gap: 8px 12px; font-size: 13px; }
+.facts dt { color: var(--faint); }
+.facts dd { margin: 0; min-width: 0; overflow-wrap: anywhere; }
+.facts .sans { font-family: var(--sans); }
+.facts .hash { color: var(--text-dim); }
+.link, .link:hover { color: var(--blue); }
+.step { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.step-number { font-family: var(--mono); color: var(--green); }
+.button, .button:hover { display: inline-flex; align-items: center; justify-content: center; gap: 8px; height: 44px; padding: 0 18px; border-radius: 6px; background: var(--amber); color: var(--amber-ink); font-weight: 700; box-sizing: border-box; }
+.button.outline, .button.outline:hover { padding: 0 16px; background: transparent; border: 1px solid var(--line-strong); color: var(--text-strong); font-weight: 400; }
+.button.disabled { background: var(--chip); color: var(--faint); cursor: not-allowed; }
+.panel-note { margin: -4px 0 0; font-size: 12px; color: var(--faint); }
+.panel-note .address { font-family: var(--mono); color: var(--text-soft); }
+.linklike { padding: 0; border: 0; background: none; color: var(--blue); font: inherit; cursor: pointer; }
+.linklike:hover { color: var(--blue); text-decoration: underline; }
+.panel-form { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 12px; }
+.panel-form input { flex: 1 1 200px; min-width: 0; height: 36px; padding: 0 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); color: var(--text-strong); font-family: var(--mono); font-size: 13px; box-sizing: border-box; }
+.panel-form button { height: 36px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 6px; background: transparent; color: var(--text-strong); font-family: var(--sans); font-size: 13px; cursor: pointer; }
+.panel-form button[type="submit"] { border-color: var(--amber); color: var(--amber); }
+.panel-form .error { flex-basis: 100%; margin: 0; color: var(--amber); }
+.summary .warning { margin: 18px 0 0; font-family: var(--sans); font-size: 13px; line-height: 1.7; color: var(--faint); }
+
+/* 底部琥珀色状态栏 */
+.statusbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; min-height: 36px; padding: 0 16px; background: var(--amber); color: var(--amber-ink); font-size: 12px; }
+.statusbar .mode { font-weight: 700; }
+.statusbar kbd { font-family: inherit; }
+
+/* 详情页 */
+.back, .back:hover { margin-top: 8px; display: inline-flex; align-items: center; height: 44px; font-size: 13px; color: var(--faint); }
+.detail-title { margin-top: 4px; display: flex; align-items: baseline; gap: 16px; flex-wrap: wrap; }
+.detail-title h1 { margin: 0; font-family: var(--sans); font-size: 36px; font-weight: 700; color: var(--text-strong); overflow-wrap: anywhere; }
+.detail-title .version { font-size: 16px; color: var(--amber); }
+.chip { padding: 3px 10px; border: 1px solid var(--line); border-radius: 6px; font-family: var(--sans); font-size: 12px; color: var(--muted); }
+.meta { margin: 12px 0 0; display: flex; gap: 8px 24px; flex-wrap: wrap; font-size: 13px; color: var(--faint); }
+.meta > span { min-width: 0; overflow-wrap: anywhere; }
+.columns { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 32px; align-items: flex-start; }
+.article { flex: 1 1 560px; min-width: 0; font-family: var(--sans); }
+.section-title { margin: 36px 0 0; padding-bottom: 10px; border-bottom: 1px dashed var(--line); font-size: 13px; font-weight: 400; color: var(--faint); }
+.article > .section-title:first-child { margin-top: 0; }
+.aside { flex: 0 1 360px; min-width: 0; display: flex; flex-direction: column; gap: 20px; padding: 22px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); box-sizing: border-box; }
+.aside .facts { gap: 10px 12px; }
+.aside-block { padding-top: 20px; border-top: 1px dashed var(--line); display: flex; flex-direction: column; gap: 10px; }
+.aside-block h2 { margin: 0; font-family: var(--sans); font-size: 13px; font-weight: 400; color: var(--faint); }
+.aside-block .heading-gap { margin-top: 10px; }
+.aside .button, .aside .button:hover { display: flex; width: 100%; font-family: var(--sans); font-size: 14px; }
+.aside .button.install { height: 48px; font-size: 15px; }
+.aside .panel-note { margin: 0; }
+.aside .panel-note .address { font-family: inherit; }
+.copy-field { display: flex; align-items: center; gap: 8px; height: 44px; padding: 0 6px 0 14px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); }
+.copy-field code { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--mono); font-size: 14px; color: var(--text-strong); }
+.copy-field button { width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; flex: none; border: 0; border-radius: 4px; background: var(--chip); color: var(--muted); cursor: pointer; }
+.copy-field button[data-copied="true"] { color: var(--green); }
+.sha { margin: 0; font-size: 11px; line-height: 1.6; color: var(--faint); word-break: break-all; }
+.aside .warning { margin: 0; padding-top: 16px; border-top: 1px dashed var(--line); font-family: var(--sans); font-size: 12px; line-height: 1.7; color: var(--faint); }
+
+/* README：第三方内容，统一约束宽度，代码块与表格在自身盒子里滚动 */
+.readme { font-size: 15px; line-height: 1.95; color: var(--text-soft); overflow-wrap: anywhere; }
+.readme > :first-child { margin-top: 0; }
+.readme p { margin: 16px 0 0; }
+.readme h1, .readme h2, .readme h3, .readme h4, .readme h5, .readme h6 { margin: 28px 0 0; line-height: 1.5; color: var(--text-strong); }
+.readme h1 { font-size: 22px; }
+.readme h2 { font-size: 18px; }
+.readme h3, .readme h4, .readme h5, .readme h6 { font-size: 15px; }
+.readme a[href], .readme a[href]:hover { color: var(--blue); }
+.readme code { padding: 1px 6px; border-radius: 4px; background: var(--chip); font-family: var(--mono); font-size: 13px; color: var(--amber); }
+.readme pre { margin: 16px 0 0; padding: 14px 16px; border-radius: 6px; background: var(--bg); border: 1px solid var(--line); overflow-x: auto; line-height: 1.6; }
+.readme pre code { padding: 0; background: none; color: var(--text); }
+.readme img { max-width: 100%; height: auto; }
+.readme table { display: block; max-width: 100%; overflow-x: auto; margin: 16px 0 0; border-collapse: collapse; font-size: 14px; }
+.readme th, .readme td { padding: 6px 12px; border: 1px solid var(--line); text-align: left; }
+.readme blockquote { margin: 16px 0 0; padding-left: 14px; border-left: 2px solid var(--line-strong); color: var(--text-dim); }
+.readme ul, .readme ol { margin: 16px 0 0; padding-left: 24px; }
+.readme hr { margin: 24px 0 0; border: 0; border-top: 1px dashed var(--line); }
+.readme-empty { margin: 0; font-size: 14px; color: var(--faint); }
+
+/* 版本表：完整 sha256 作为每行第二行，避免把表格撑得过宽 */
+.article .table-scroll { margin-top: 0; }
+.versions { min-width: 600px; }
+.version-row { display: grid; grid-template-columns: 90px 150px minmax(0, 1fr) 100px 110px; gap: 16px; align-items: center; }
+.versions-head { padding: 10px 0; font-size: 12px; color: var(--faint); }
+.version-item { padding: 12px 0; border-top: 1px solid var(--chip); font-family: var(--mono); font-size: 14px; }
+.version-item .number { color: var(--amber); }
+.version-item.yanked .number { color: var(--faint); text-decoration: line-through; }
+.version-item .button, .version-item .button:hover { height: 32px; padding: 0 12px; font-family: var(--sans); font-size: 13px; }
+.version-item .version-sha { margin: 6px 0 0; font-size: 11px; line-height: 1.6; color: var(--faint); word-break: break-all; }
+
+/* Python 依赖说明 */
+.deps { margin: 16px 0 0; padding-left: 24px; font-family: var(--mono); font-size: 14px; line-height: 1.8; color: var(--text-soft); }
+.deps-note { margin: 12px 0 0; font-size: 14px; line-height: 1.8; color: var(--text-dim); }
+.command { margin: 10px 0 0; padding: 12px 14px; border: 1px solid var(--line); border-radius: 6px; background: var(--bg); overflow-x: auto; font-family: var(--mono); font-size: 13px; color: var(--text-strong); white-space: pre; }
+
+/* 登记说明与 404 */
+.prose { margin-top: 22px; max-width: 760px; font-family: var(--sans); font-size: 15px; line-height: 1.9; color: var(--text-soft); }
+.prose p, .prose ol { margin: 14px 0 0; }
+.prose ol { padding-left: 24px; }
+.actions { margin-top: 24px; display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* 手机宽度：收窄外边距；标题栏与各区块本身可换行，只有表格在盒子里横向滚动 */
+@media (max-width: 640px) {
+  .page { padding: 16px 10px 32px; }
+  .content, .content.detail { padding: 22px 16px 26px; }
+  .headline h1 { font-size: 32px; }
+  .detail-title h1 { font-size: 28px; }
+  .summary { padding: 18px 16px; }
+  .dots { padding: 0 12px; }
+  .tab, .tab:hover { padding: 0 12px; }
+  .titlebar-link, .titlebar-link:hover { padding: 0 10px; }
+  .titlebar-host { padding: 0 12px; }
+  .aside { flex-basis: 100%; }
+}

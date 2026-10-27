@@ -47,3 +47,60 @@ jobs:
             git commit -m 'chore: 更新插件包摘要与索引'
             git push origin HEAD:main
           fi
+  # 部署与审核分开：审核作业要读取第三方插件源码，若部署凭证放在同一个作业里，
+  # 插件中藏的代码就可能把凭证带出去，进而替换商店里的插件包。这里只在打包完成后、
+  # 由维护者手动或定时触发，且 Cloudflare 凭证只出现在本作业。
+  deploy:
+    needs: package
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    environment: production
+    # 本作业只读仓库内容与 Release 附件，不写回仓库。
+    permissions:
+      contents: read
+    steps:
+      # 检出 main 的最新提交，包含打包作业刚推送的 index.json 与 readme/。
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      # 已下载的包按 run 保存，下次从最近一次恢复，只补新增版本，减少 Release 下载量。
+      - uses: actions/cache@v4
+        with:
+          path: site/packages
+          key: store-packages-${{ github.run_id }}
+          restore-keys: store-packages-
+      # 显式写 shell: bash 才会带 pipefail，jq 读取索引失败时整步失败而不是静默少下载。
+      - name: 从 Release 补齐插件包
+        shell: bash
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          jq -r '.plugins[] | .id as $id | .versions[] | [$id, .version] | @tsv' index.json |
+          while IFS=$'\t' read -r plugin_id version; do
+            target="site/packages/$plugin_id/$version.zip"
+            if [ ! -f "$target" ]; then
+              mkdir -p "site/packages/$plugin_id"
+              gh release download "$plugin_id-v$version" --pattern "$plugin_id-$version.zip" --output "$target"
+            fi
+          done
+      # 生成站点并核对每个包的大小与摘要，不一致直接失败，不部署指向错误字节的链接。
+      - name: 生成商店网站
+        run: |
+          uv sync --no-dev
+          uv run --no-dev python -m scripts.build_site
+      - name: 建立下载计数表
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx --yes wrangler@4 d1 execute yueli-plugins --remote --file worker/schema.sql
+      - name: 部署到 Cloudflare
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+        run: npx --yes wrangler@4 deploy

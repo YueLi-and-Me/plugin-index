@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-10-27T06:15:51.283509Z",
+  "stats_url": "https://plugins.yuelibot.org/stats.json",
+  "plugins": [
+    {
+      "id": "example.rss-reader",
+      "name": "订阅阅读",
+      "description": "整理关注的 RSS 更新（示例）",
+      "author": {
+        "name": "示例作者"
+      },
+      "license": "MIT",
+      "repository": "https://github.com/example-author/yueli-plugin-rss",
+      "tags": [
+        "信息获取"
+      ],
+      "versions": [
+        {
+          "version": "1.1.0",
+          "commit": "0a2f32e795d4274dc4fa6ca2bc8e4a323adf5c30",
+          "host_application": {
+            "min_version": "0.2.0",
+            "max_version": "0.2.5"
+          },
+          "python_dependencies": [
+            "feedparser>=6.0",
+            "httpx>=0.28"
+          ],
+          "sha256": "3bdc601b988c65a9ba26c293726bcd456aa0a27ab0283cfd5c613a6edeba56e9",
+          "size": 24,
+          "published_at": "2026-10-20T08:00:00Z",
+          "yanked": false,
+          "downloads": [
+            "https://plugins.yuelibot.org/packages/example.rss-reader/1.1.0.zip",
+            "https://github.com/YueLi-and-Me/plugin-index/releases/download/example.rss-reader-v1.1.0/example.rss-reader-1.1.0.zip"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "example.schedule",
+      "name": "日程助手",
+      "description": "整理近期安排与待办（示例）",
+      "author": {
+        "name": "示例团队",
+        "url": "https://example.org/team"
+      },
+      "license": "Apache-2.0",
+      "repository": "https://github.com/example-team/yueli-plugin-schedule",
+      "tags": [
+        "效率"
+      ],
+      "versions": [
+        {
+          "version": "1.0.2",
+          "commit": "03f24c76f84c0ef3ee06f3d824c00ff9fa7c1e6d",
+          "host_application": {
+            "min_version": "0.2.0",
+            "max_version": "0.2.5"
+          },
+          "python_dependencies": [],
+          "sha256": "55347dfce94202b27f1d9945dc66d483f4d70e8518718c86ef59da3fd1fbd3b8",
+          "size": 22,
+          "published_at": "2026-10-12T08:00:00Z",
+          "yanked": false,
+          "downloads": [
+            "https://plugins.yuelibot.org/packages/example.schedule/1.0.2.zip",
+            "https://github.com/YueLi-and-Me/plugin-index/releases/download/example.schedule-v1.0.2/example.schedule-1.0.2.zip"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "yueli.web-search",
+      "name": "联网搜索",
+      "description": "查公开信息，把标题、日期和来源带回对话",
+      "author": {
+        "name": "YueLi-and-Me",
+        "url": "https://github.com/YueLi-and-Me"
+      },
+      "license": "AGPL-3.0-only",
+      "repository": "https://github.com/YueLi-and-Me/yueli-plugin-web-search",
+      "tags": [
+        "搜索",
+        "信息获取"
+      ],
+      "versions": [
+        {
+          "version": "0.2.5",
+          "commit": "1651aa6d8b85dc3b5e14214e0d7012b29b35c485",
+          "host_application": {
+            "min_version": "0.2.0",
+            "max_version": "0.2.5"
+          },
+          "python_dependencies": [],
+          "sha256": "cfd4b21649177fa4845f4e6ae44398aa5f09ecdeccd00c8e387f2d339dec462c",
+          "size": 22,
+          "published_at": "2026-10-27T06:00:00Z",
+          "yanked": false,
+          "downloads": [
+            "https://plugins.yuelibot.org/packages/yueli.web-search/0.2.5.zip",
+            "https://github.com/YueLi-and-Me/plugin-index/releases/download/yueli.web-search-v0.2.5/yueli.web-search-0.2.5.zip"
+          ]
+        },
+        {
+          "version": "0.2.4",
+          "commit": "e0d2d1de097e8d6eafed780f3b6c992094bc1a96",
+          "host_application": {
+            "min_version": "0.2.0",
+            "max_version": "0.2.4"
+          },
+          "python_dependencies": [],
+          "sha256": "9e0593f65852467327667eb10cf389d37b9a582fc89e9f3a039b0e07eae992b4",
+          "size": 22,
+          "published_at": "2026-10-15T06:00:00Z",
+          "yanked": true,
+          "downloads": [
+            "https://plugins.yuelibot.org/packages/yueli.web-search/0.2.4.zip",
+            "https://github.com/YueLi-and-Me/plugin-index/releases/download/yueli.web-search-v0.2.4/yueli.web-search-0.2.4.zip"
+          ]
+        },
+        {
+          "version": "0.2.3",
+          "commit": "9dd91a4a9ea1fc65ba0f1fc489be3b09d8c8dc52",
+          "host_application": {
+            "min_version": "0.2.0",
+            "max_version": "0.2.3"
+          },
+          "python_dependencies": [],
+          "sha256": "4e3263ba5f78fa32b6f75e7461fd38ba2dfc48bfd323f76f9cebc2850456b68f",
+          "size": 22,
+          "published_at": "2026-10-01T06:00:00Z",
+          "yanked": false,
+          "downloads": [
+            "https://plugins.yuelibot.org/packages/yueli.web-search/0.2.3.zip",
+            "https://github.com/YueLi-and-Me/plugin-index/releases/download/yueli.web-search-v0.2.3/yueli.web-search-0.2.3.zip"
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -9,6 +9,8 @@ dist/
 build/
 *.egg-info/
 site/
+.wrangler/
+node_modules/
 packages/
 .env
 .env.*
