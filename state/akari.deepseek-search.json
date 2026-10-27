@@ -27,6 +27,10 @@
       "decision": "pass",
       "summary": "维护者批准",
       "risks": []
-    }
+    },
+    "sha256": "b7f607608dadd6ce4da0530070555c59479a0c975bfb09a8a7471e19c7293d40",
+    "size": 23015,
+    "published_at": "2026-10-27T13:24:59Z",
+    "release_tag": "akari.deepseek-search-v0.1.0"
   }
 }
