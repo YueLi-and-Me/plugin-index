@@ -293,13 +293,15 @@ class ReviewEngine:
                     result=self.model_call(material,budget)
                 row['review']=result
                 approved=command=='approve' or can_auto_approve(checks,result,registered=registered)
+                # 首次登记即使模型通过也必须人工批准；此时写「转人工审核」会让作者误以为审出了问题。
+                verdict='已批准' if approved else '审核通过，首次登记等待维护者批准' if can_auto_approve(checks,result,registered=True) else '转人工审核'
                 if approved:
                     row['status']='approved'
                     if not registered:
                         write_json(self.root/'entries'/f'{plugin_id}.json',{key:entry[key] for key in ('repository','maintainers','tags')})
                         registered=True
                     outcome['publish']=True
-                self._say(number,f'{plugin_id} {version}：'+('已批准' if approved else '转人工审核')+'\n'+result['summary']+'\n'+'\n'.join(result['risks']))
+                self._say(number,f'{plugin_id} {version}：{verdict}\n'+result['summary']+'\n'+'\n'.join(result['risks']))
         write_json(state_path,state)
         write_json(issue_path,issue_state)
         outcome['close']=all(state[version]['status'] in ('approved','rejected') for version in versions)

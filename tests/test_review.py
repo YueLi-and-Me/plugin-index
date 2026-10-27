@@ -122,6 +122,7 @@ def test_initial_requires_human_and_rechecks_rules(tmp_path,payload):
     instance,github,tree,calls=engine(tmp_path,payload,registered=False)
     result=instance.run(12)
     assert not (tmp_path/'entries/test.plugin.json').exists() and not result['publish'] and len(calls)==1
+    assert '审核通过，首次登记等待维护者批准' in github.comments[-1]
     tree['config.toml']=('100644',b'bad')
     result=instance.run(12,comment={'body':'/approve','user':{'login':'maintainer'}})
     assert not (tmp_path/'entries/test.plugin.json').exists() and not result['publish']
