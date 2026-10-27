@@ -24,6 +24,9 @@ MAX_REVIEW_CALLS = 8
 MAX_SCHEMA_RETRIES = 3
 # 完整源码上限，单位字节；超过 200 KiB 转人工，不截断送审。
 MAX_SOURCE_BYTES = 200 * 1024
+# 单次模型请求的等待上限，单位秒。源码接近上限时模型先思考再作答，120 秒不够用；
+# 超时与其他请求失败一样计入调用次数，重试用尽后转人工。
+MODEL_TIMEOUT_SECONDS = 300
 # 请求前写入的机器人评论标记，仅统计官方 Actions 机器人写入的完全相同正文。
 ATTEMPT_MARKER = '<!-- review-attempt -->'
 # 单版本模型输出协议；禁止模型给出拒绝或执行命令的第三种决策。
@@ -315,7 +318,7 @@ def main() -> None:
         event_name=os.environ['GITHUB_EVENT_NAME']
         number=issue_number(os.environ.get('INPUT_ISSUE_NUMBER','') if event_name=='workflow_dispatch' else event['issue']['number'])
         comment=event['comment'] if event_name=='issue_comment' else None
-        with httpx.Client(timeout=30) as pypi, httpx.Client(timeout=120) as model_client:
+        with httpx.Client(timeout=30) as pypi, httpx.Client(timeout=MODEL_TIMEOUT_SECONDS) as model_client:
             def model_call(material: Dict[str,Any], budget: ReviewBudget) -> Dict[str,Any]:
                 return review_with_ai(material,budget=budget,client=model_client,base=os.environ.get('REVIEW_API_BASE',''),key=os.environ.get('REVIEW_API_KEY',''),model=os.environ.get('REVIEW_MODEL',''))
             result=ReviewEngine(args.root,github,pypi=pypi,model_call=model_call).run(number,comment=comment)
