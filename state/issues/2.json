@@ -1,0 +1,17 @@
+{
+  "registration": {
+    "repository": "https://github.com/Akari-Aki/yueli-plugin-deepseek-search",
+    "maintainers": [
+      "Akari-Aki"
+    ],
+    "tags": [
+      "联网",
+      "搜索"
+    ],
+    "description": "用 DeepSeek Search API 查询公开信息，把网页标题、来源、日期和摘要带回对话。部署者填写自己的 DeepSeek API 密钥，查询词只发往 DeepSeek 搜索接口，不打开结果链接，不读写插件目录以外的文件。"
+  },
+  "versions": [
+    "0.1.0"
+  ],
+  "attempts": 1
+}
