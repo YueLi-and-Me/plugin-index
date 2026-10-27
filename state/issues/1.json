@@ -1,0 +1,17 @@
+{
+  "registration": {
+    "repository": "https://github.com/Akari-Aki/yueli-plugin-web-search",
+    "maintainers": [
+      "Akari-Aki"
+    ],
+    "tags": [
+      "联网",
+      "搜索"
+    ],
+    "description": "<html>\n<body>\n<!--StartFragment-->\n  | 查询公开信息，把网页标题、来源、日期和摘要带回对话。部署者自行配置 HTTP JSON 搜索接口或只读 MCP 搜索工具，查询词只发往配置的搜索服务，不读写插件目录以外的文件。\n-- | --\n\n\n<!--EndFragment-->\n</body>\n</html>"
+  },
+  "versions": [
+    "0.2.5"
+  ],
+  "attempts": 1
+}
