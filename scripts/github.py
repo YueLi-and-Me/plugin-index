@@ -37,6 +37,16 @@ class GitHub:
         """向指定 Issue 添加已清理的评论；失败直接抛错。"""
         self.request('POST',f'issues/{number}/comments',json={'body':body})
 
+    def comments_for(self, number: int) -> List[Dict[str,Any]]:
+        """分页读取全部评论，供审核次数账本核对；不只读取最新一页。"""
+        result=[]
+        page=1
+        while True:
+            rows=self.request('GET',f'issues/{number}/comments',params={'per_page':100,'page':page})
+            result.extend(rows)
+            if len(rows)<100: return result
+            page+=1
+
     def close(self, number: int) -> None:
         """关闭完成的审核 Issue，失败直接抛错。"""
         self.request('PATCH',f'issues/{number}',json={'state':'closed'})

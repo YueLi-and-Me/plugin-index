@@ -23,6 +23,10 @@ jobs:
         with:
           python-version: '3.12'
       - run: uv sync
+      - name: 确保审核标签存在
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: gh label create '插件审核' --color B4B8DC --description '插件登记与版本审核' --force
       - name: 发现版本并保存状态
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -1,0 +1,73 @@
+name: 审核插件
+on:
+  issues:
+    types: [opened, labeled]
+  issue_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      issue_number:
+        description: 未关闭且带审核标签的 Issue 正整数编号
+        required: true
+        type: string
+permissions:
+  contents: write
+  issues: write
+  actions: write
+concurrency:
+  group: plugin-review-${{ github.event.issue.number || inputs.issue_number }}
+  cancel-in-progress: false
+jobs:
+  review:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: 校验审核编号
+        env:
+          REVIEW_ISSUE: ${{ github.event.issue.number || inputs.issue_number }}
+        run: |
+          if [[ ! "$REVIEW_ISSUE" =~ ^[1-9][0-9]*$ ]]; then
+            echo 'issue_number 必须是无前导零的正整数' >&2
+            exit 1
+          fi
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: '3.12'
+      - name: 检出宿主最新发布 Tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          host_tag=$(gh api repos/YueLi-and-Me/YueLiBot/releases/latest --jq .tag_name)
+          git clone --depth 1 --branch "$host_tag" https://github.com/YueLi-and-Me/YueLiBot.git "$RUNNER_TEMP/yueli-host"
+          uv sync --project "$RUNNER_TEMP/yueli-host" --all-extras
+          uv pip install --python "$RUNNER_TEMP/yueli-host/.venv/bin/python" -r requirements.txt
+      - name: 检查与审核
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          INPUT_ISSUE_NUMBER: ${{ inputs.issue_number }}
+          REVIEW_API_BASE: ${{ secrets.REVIEW_API_BASE }}
+          REVIEW_API_KEY: ${{ secrets.REVIEW_API_KEY }}
+          REVIEW_MODEL: ${{ secrets.REVIEW_MODEL }}
+        run: |
+          export PYTHONPATH="$PWD:$RUNNER_TEMP/yueli-host"
+          "$RUNNER_TEMP/yueli-host/.venv/bin/python" -m scripts.review --result-output "$RUNNER_TEMP/review-result.json"
+          git config user.name lingbai-i
+          git config user.email 191384656+lingbai-i@users.noreply.github.com
+          git add -- entries state blocked_versions.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'chore: 更新插件审核结论'
+            git push origin HEAD:main
+          fi
+      - name: 完成审核并显式分发发布
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          export PYTHONPATH="$PWD:$RUNNER_TEMP/yueli-host"
+          "$RUNNER_TEMP/yueli-host/.venv/bin/python" -m scripts.review --finalize "$RUNNER_TEMP/review-result.json"
+          if [ "$(jq -r .publish "$RUNNER_TEMP/review-result.json")" = true ]; then
+            gh workflow run publish.yml --ref main
+          fi
