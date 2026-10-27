@@ -1,0 +1,4 @@
+# 与 pyproject.toml 的运行依赖一致；宿主解析器使用单独检出的发布版环境。
+httpx>=0.28
+packaging>=24
+jsonschema>=4.23

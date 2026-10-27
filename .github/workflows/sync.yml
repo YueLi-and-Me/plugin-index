@@ -1,0 +1,44 @@
+name: 同步插件版本
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 18 * * *'
+    - cron: '0 7 * * *'
+permissions:
+  contents: write
+  issues: write
+  actions: write
+concurrency:
+  group: plugin-index-writes
+  cancel-in-progress: false
+jobs:
+  sync:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: '3.12'
+      - run: uv sync
+      - name: 发现版本并保存状态
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          uv run python -m scripts.sync --issues-output "$RUNNER_TEMP/review-issues.txt"
+          git config user.name lingbai-i
+          git config user.email 191384656+lingbai-i@users.noreply.github.com
+          git add -- state
+          if ! git diff --cached --quiet; then
+            git commit -m 'chore: 同步插件待审版本与撤回状态'
+            git push origin HEAD:main
+          fi
+      - name: 显式分发审核
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          while IFS= read -r issue_number; do
+            gh workflow run review.yml --ref main -f "issue_number=$issue_number"
+          done < "$RUNNER_TEMP/review-issues.txt"

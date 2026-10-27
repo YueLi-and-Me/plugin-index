@@ -1,0 +1,49 @@
+name: 发布插件索引
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '30 18 * * *'
+    - cron: '30 7 * * *'
+permissions:
+  contents: write
+concurrency:
+  group: plugin-index-writes
+  cancel-in-progress: false
+jobs:
+  package:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - uses: astral-sh/setup-uv@v6
+        with:
+          python-version: '3.12'
+      - name: 检出宿主最新发布 Tag
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          host_tag=$(gh api repos/YueLi-and-Me/YueLiBot/releases/latest --jq .tag_name)
+          git clone --depth 1 --branch "$host_tag" https://github.com/YueLi-and-Me/YueLiBot.git "$RUNNER_TEMP/yueli-host"
+          uv sync --project "$RUNNER_TEMP/yueli-host" --all-extras
+          uv pip install --python "$RUNNER_TEMP/yueli-host/.venv/bin/python" -r requirements.txt
+      - uses: actions/cache@v4
+        with:
+          path: .cache/packages
+          key: plugin-packages-${{ github.run_id }}
+          restore-keys: plugin-packages-
+      - name: 打包并发布固定附件
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          export PYTHONPATH="$PWD:$RUNNER_TEMP/yueli-host"
+          "$RUNNER_TEMP/yueli-host/.venv/bin/python" -m scripts.package
+          "$RUNNER_TEMP/yueli-host/.venv/bin/python" -m scripts.build_index
+          git config user.name lingbai-i
+          git config user.email 191384656+lingbai-i@users.noreply.github.com
+          git add -- state readme index.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'chore: 更新插件包摘要与索引'
+            git push origin HEAD:main
+          fi

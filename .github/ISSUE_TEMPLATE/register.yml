@@ -1,0 +1,33 @@
+name: 登记插件
+description: 提交工具插件的仓库与用途，由维护者审核首次收录。
+title: "登记插件："
+labels: ["插件审核"]
+body:
+  - type: input
+    id: plugin_id
+    attributes:
+      label: 插件 id
+      description: 与 _manifest.json 的 id 完全一致。
+    validations:
+      required: true
+  - type: input
+    id: repository
+    attributes:
+      label: 仓库地址
+      description: 可公开 git clone 的仓库地址，至少有一个版本 Tag。
+    validations:
+      required: true
+  - type: input
+    id: tags
+    attributes:
+      label: 分类
+      description: 多个分类用中文或英文逗号分隔。
+    validations:
+      required: true
+  - type: textarea
+    id: description
+    attributes:
+      label: 说明
+      description: 插件用途、外部服务、数据访问范围及必要配置。
+    validations:
+      required: true

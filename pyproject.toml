@@ -1,0 +1,13 @@
+[project]
+name = "yueli-plugin-index"
+version = "0.1.0"
+description = "月璃插件登记、检查与索引构建工具"
+requires-python = ">=3.12"
+dependencies = ["httpx>=0.28", "packaging>=24", "jsonschema>=4.23"]
+
+[dependency-groups]
+dev = ["pytest>=8", "PyYAML>=6"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
