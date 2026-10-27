@@ -34,7 +34,7 @@
 </div>
 {% for plugin in plugins %}
 <div class="table-row plugin-row{% if loop.first %} selected{% endif %}" role="row" data-id="{{ plugin.id }}" data-search="{{ plugin.search }}" data-tags='{{ plugin.tags | tojson }}'{% if loop.first %} aria-current="true"{% endif %}>
-<span class="name" role="cell"><span class="mark" aria-hidden="true">▸</span> {{ plugin.name }}</span>
+<span class="name" role="cell" title="{{ plugin.name }}"><span class="mark" aria-hidden="true">▸</span> {{ plugin.name }}</span>
 <span class="desc" role="cell">{{ plugin.description }}</span>
 <span class="author" role="cell">{{ plugin.author_name }}</span>
 <span role="cell">{{ plugin.current.version }}</span>
@@ -66,6 +66,7 @@
 </div>
 <p class="panel-note">管理面板地址 <span class="address" data-panel-label>{{ default_panel | replace('http://', '') }}</span> · {% call ui.panel_edit(plugin, 'list') %}修改{% endcall %}</p>
 {{ ui.panel_form(plugin, 'list') }}
+<p class="panel-note">管理面板里没有「插件市场」页时，按第 2 步手动安装。</p>
 <div class="step">
 <span><span class="step-number">2</span>&#160; 下载 ZIP，解压到 plugins/，重启</span>
 <a class="button outline" href="{{ plugin.latest.package }}" download>下载 zip</a>

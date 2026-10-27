@@ -77,6 +77,7 @@
 {{ ui.install_link(plugin, '一键安装 ' ~ plugin.latest.version, ' install') }}
 <p class="panel-note">将打开你的管理面板 <span class="address" data-panel-label>{{ default_panel | replace('http://', '') }}</span>，确认后安装 · {% call ui.panel_edit(plugin, 'detail') %}修改地址{% endcall %}</p>
 {{ ui.panel_form(plugin, 'detail') }}
+<p class="panel-note">管理面板里没有「插件市场」页时，用下方的 ZIP 手动安装。</p>
 <h2 class="heading-gap">或在管理面板「插件市场」搜索</h2>
 <div class="copy-field">
 <code id="plugin-id">{{ plugin.id }}</code>

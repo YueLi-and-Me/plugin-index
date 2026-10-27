@@ -99,11 +99,13 @@ input::placeholder { color: var(--faint); }
 /* position: relative 让表格里绝对定位的 .sr-only 文字以滚动盒子为包含块；否则它按页面定位，
    在窄屏上落到视口右侧之外，把整页撑出横向滚动。 */
 .table-scroll { position: relative; margin-top: 26px; overflow-x: auto; }
-.table { min-width: 940px; }
-.table-row { display: grid; grid-template-columns: 150px minmax(0, 1fr) 140px 70px 130px 70px 70px; gap: 16px; align-items: center; }
+.table { min-width: 980px; }
+.table-row { display: grid; grid-template-columns: 190px minmax(0, 1fr) 140px 70px 130px 70px 70px; gap: 16px; align-items: center; }
 .table-head { padding: 10px 14px; border-bottom: 1px dashed var(--line); font-size: 12px; color: var(--faint); }
 .plugin-row { padding: 14px; border-radius: 6px; font-size: 14px; color: var(--text); cursor: pointer; }
 .plugin-row .mark { visibility: hidden; }
+/* 名称不换行：选中时加粗变宽，长名称会挤成两行把整行撑高；超出列宽以省略号收尾，悬停看全名。 */
+.plugin-row .name { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .plugin-row .desc { font-family: var(--sans); color: var(--text-dim); }
 .plugin-row .author { color: var(--blue); }
 .plugin-row .view, .plugin-row .view:hover { color: var(--faint); }
