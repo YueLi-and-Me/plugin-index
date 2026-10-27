@@ -27,6 +27,10 @@
       "decision": "pass",
       "summary": "维护者批准",
       "risks": []
-    }
+    },
+    "sha256": "2c8da8e24eaeb7d7074d8209c1d48c14c55a92c022a6111530de6f4ab0cb215a",
+    "size": 30203,
+    "published_at": "2026-10-27T12:56:44Z",
+    "release_tag": "yueli.web-search-v0.2.5"
   }
 }

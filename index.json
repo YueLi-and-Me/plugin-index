@@ -1,6 +1,41 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-27T06:15:51.283509Z",
+  "generated_at": "2026-10-27T12:56:45.487556Z",
   "stats_url": "https://plugins.yuelibot.org/stats.json",
-  "plugins": []
+  "plugins": [
+    {
+      "id": "yueli.web-search",
+      "name": "联网搜索",
+      "description": "按部署者配置的 HTTP JSON 接口或宿主 MCP 工具搜索公开信息，结果作为外部观察回灌",
+      "author": {
+        "name": "Akari-Aki",
+        "url": "https://github.com/Akari-Aki"
+      },
+      "license": "AGPL-3.0-only",
+      "repository": "https://github.com/Akari-Aki/yueli-plugin-web-search",
+      "tags": [
+        "联网",
+        "搜索"
+      ],
+      "versions": [
+        {
+          "version": "0.2.5",
+          "commit": "a807688b0be1cd3fb3363c5a4a39edad6215f945",
+          "host_application": {
+            "min_version": "0.2.0",
+            "max_version": "0.2.5"
+          },
+          "python_dependencies": [],
+          "sha256": "2c8da8e24eaeb7d7074d8209c1d48c14c55a92c022a6111530de6f4ab0cb215a",
+          "size": 30203,
+          "published_at": "2026-10-27T12:56:44Z",
+          "yanked": false,
+          "downloads": [
+            "https://plugins.yuelibot.org/packages/yueli.web-search/0.2.5.zip",
+            "https://github.com/YueLi-and-Me/plugin-index/releases/download/yueli.web-search-v0.2.5/yueli.web-search-0.2.5.zip"
+          ]
+        }
+      ]
+    }
+  ]
 }
