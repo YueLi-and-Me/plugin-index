@@ -2,7 +2,7 @@
   "0.2.5": {
     "tag": "v0.2.5",
     "commit": "a807688b0be1cd3fb3363c5a4a39edad6215f945",
-    "status": "pending",
+    "status": "approved",
     "review_issue": 1,
     "manifest": {
       "manifest_version": 2,
@@ -25,7 +25,7 @@
       "version": "0.2.5",
       "reviewed": true,
       "decision": "pass",
-      "summary": "已完整审阅 0.2.5 版本。插件仅按部署者配置的 HTTP JSON 接口或通过宿主 MCP 门面执行网页搜索，不读取聊天记录或用户标识，不读写插件目录外文件，不修改宿主数据库或配置；无 subprocess、eval、远程代码下载执行。HTTP 请求禁用重定向，api_key 在日志、错误和观察文本中均做抹除，缓存仅保存在内存中。未发现与清单不符、未说明的第三方服务、违法违规内容或源码主动访问回环/内网/云元数据地址的行为。",
+      "summary": "维护者批准",
       "risks": []
     }
   }
