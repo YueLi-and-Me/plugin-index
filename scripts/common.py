@@ -1,15 +1,17 @@
 """索引持久化和只读 Git 访问，供同步、审核与打包入口调用。
 
-插件源码按 Git 对象读取，不检出工作树、不运行插件命令；JSON 原子替换，
+插件源码按 Git 对象与 git archive 读取，不检出工作树、不运行插件命令；JSON 原子替换，
 异常向上传递，避免把读取失败误认为空登记或新版本。
 """
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, Tuple
+import io
 import json
 import os
 import re
 import subprocess
+import tarfile
 
 # 发布版本只接受三段非负整数，可带一个 v 前缀；不接受预发布或路径字符。
 TAG_PATTERN = re.compile(r'^v?(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$')
@@ -94,16 +96,30 @@ class GitRepository:
         self.run('fetch','--depth','1','origin',commit)
 
     def tree(self, commit: str) -> Dict[str, Tuple[str,bytes]]:
-        """读取固定 commit 的模式和 blob；链接只作为数据，子模块明确拒绝。"""
-        result={}
+        """读取固定 commit 实际发布的文件，返回路径到 Git 模式与原始字节的映射。
+
+        内容取自 git archive，与 archive() 打出的插件包同源：作者在 .gitattributes 中以
+        export-ignore 排除的测试等开发文件不进入发布包，也不参与检查与模型审核。
+        若改回读取完整提交树，测试里导入宿主内部模块会被判为越界，而这些文件从不随包发布。
+
+        :param commit: 已 fetch 的四十位提交。
+        :return: 发布文件映射；符号链接以 120000 模式记录链接目标，只作为数据。
+        :raises ValueError: 仓库含子模块，或归档出现文件与链接以外的条目。
+        """
         for entry in self.run('ls-tree','-rz',commit).split(b'\0'):
-            if not entry:
-                continue
-            metadata,name=entry.split(b'\t',1)
-            mode,kind,object_id=metadata.decode().split()
-            if kind!='blob':
+            if entry and entry.split(b'\t',1)[0].split()[1]!=b'blob':
                 raise ValueError('插件仓库不能包含子模块')
-            result[name.decode('utf-8')]=(mode,self.run('cat-file','blob',object_id))
+        result={}
+        with tarfile.open(fileobj=io.BytesIO(self.run('archive','--format=tar',commit)),mode='r:') as archive:
+            for member in archive.getmembers():
+                if member.isdir():
+                    continue
+                if member.issym():
+                    result[member.name]=('120000',member.linkname.encode('utf-8'))
+                elif member.isfile():
+                    result[member.name]=('100755' if member.mode&0o111 else '100644',archive.extractfile(member).read())
+                else:
+                    raise ValueError(f'归档中有不支持的条目：{member.name}')
         return result
 
     def archive(self, commit: str, plugin_id: str, target: Path) -> None:

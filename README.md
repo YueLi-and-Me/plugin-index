@@ -6,7 +6,8 @@
 作者通过「登记插件」Issue 表单填写插件 id、仓库地址、分类和说明。Tag 使用
 `vX.Y.Z` 或 `X.Y.Z`，清单版本须与 Tag 一致；首次登记需要维护者批准。清单必须有
 作者、许可证和完整主程序版本区间，不得提交 `config.toml`，仅从 `src.plugin_system`
-门面导入宿主类型。
+门面导入宿主类型。检查、审核与打包都只看 `git archive` 实际打出的内容：测试等开发文件
+可在 `.gitattributes` 中标记 `export-ignore`，不随包发布，也不参与检查。
 
 `entries/<id>.json` 保存 `repository`、`maintainers`、`tags` 和可选 `yanked` 列表；
 `state/<id>.json` 以版本号为键，保存固定 commit、审核状态、Issue 编号和发布摘要。

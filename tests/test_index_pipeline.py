@@ -218,6 +218,31 @@ def test_git_snapshot_and_issue_dispatch_list(tmp_path,payload,monkeypatch):
     assert len(calls)==1
 
 
+def test_tree_matches_published_package(tmp_path,payload):
+    """export-ignore 的测试文件不进发布包，检查读取的文件集合与插件包完全一致。"""
+    source=tmp_path/'upstream'; (source/'tests').mkdir(parents=True)
+    def git(*args):
+        return subprocess.check_output(['git','-C',str(source),*args])
+    git('init'); git('config','user.email','test@example.invalid'); git('config','user.name','测试')
+    (source/'_manifest.json').write_text(json.dumps(payload),encoding='utf-8')
+    (source/'plugin.py').write_text('from src.plugin_system import ToolPlugin\n',encoding='utf-8')
+    (source/'tests/test_plugin.py').write_text('from src.core.config import Config\n',encoding='utf-8')
+    (source/'.gitattributes').write_text('tests/ export-ignore\n',encoding='utf-8')
+    git('add','.'); git('commit','-m','test')
+    commit=git('rev-parse','HEAD').decode().strip()
+    repo=module('common').GitRepository(source.as_uri(),tmp_path/'clone')
+    repo.fetch(commit)
+    tree=repo.tree(commit)
+    assert set(tree)=={'.gitattributes','_manifest.json','plugin.py'}
+    package=tmp_path/'test.plugin.zip'
+    repo.archive(commit,'test.plugin',package)
+    with ZipFile(package) as archive:
+        assert {name.removeprefix('test.plugin/') for name in archive.namelist() if not name.endswith('/')}==set(tree)
+    with httpx.Client(transport=httpx.MockTransport(lambda request:httpx.Response(404))) as client:
+        result=module('checks').check_tree(tree,plugin_id='test.plugin',tag='v1.0.0',archive_size=package.stat().st_size,pypi=client)
+    assert result.passed and not result.manual_reasons
+
+
 def test_release_upload_and_existing_asset(tmp_path):
     """Release 首次上传固定字节，已有附件仅校验取回，不调用覆盖上传。"""
     path=tmp_path/'test.plugin-1.0.0.zip'; path.write_bytes(b'archive')
