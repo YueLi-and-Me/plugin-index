@@ -144,7 +144,7 @@ def test_workflow_privilege_boundary():
     assert 'workflow_dispatch:' in publish and 'schedule:' in publish
     for name in ('pull_request','pull_request_target','issues:','issue_comment:'):
         assert name not in publish
-    assert '0 18 * * *' in sync and '0 7 * * *' in sync
+    assert "cron: '17 * * * *'" in sync
     assert 'actions: write' in sync and 'gh workflow run review.yml' in sync
     for path in root.glob('*.yml'):
         if path.name!='publish.yml': assert 'CLOUDFLARE_' not in path.read_text(encoding='utf-8')
