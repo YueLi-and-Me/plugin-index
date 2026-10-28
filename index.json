@@ -1,12 +1,12 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-27T13:25:01.248438Z",
+  "generated_at": "2026-10-28T02:25:28.204151Z",
   "stats_url": "https://plugins.yuelibot.org/stats.json",
   "plugins": [
     {
       "id": "akari.deepseek-search",
       "name": "DeepSeek 联网搜索",
-      "description": "用 DeepSeek Search API 搜索公开网页，把标题、来源、日期和摘要作为外部观察交给对话",
+      "description": "填一个 DeepSeek API 密钥即可使用的联网搜索，不用配置接口格式；把网页标题、来源、日期和摘要交给对话。想接智谱、博查等其他搜索服务，请装「联网搜索」",
       "author": {
         "name": "Akari-Aki",
         "url": "https://github.com/Akari-Aki"
@@ -18,6 +18,23 @@
         "搜索"
       ],
       "versions": [
+        {
+          "version": "0.1.1",
+          "commit": "235f50fc2feb2dbb2539323d850ce111b4a1127b",
+          "host_application": {
+            "min_version": "0.2.0",
+            "max_version": "0.3.0"
+          },
+          "python_dependencies": [],
+          "sha256": "9681212028099dc0b81e1ffb6d322067ce421a8750df71d9db0be35e26d0a768",
+          "size": 23418,
+          "published_at": "2026-10-28T02:25:26Z",
+          "yanked": false,
+          "downloads": [
+            "https://plugins.yuelibot.org/packages/akari.deepseek-search/0.1.1.zip",
+            "https://github.com/YueLi-and-Me/plugin-index/releases/download/akari.deepseek-search-v0.1.1/akari.deepseek-search-0.1.1.zip"
+          ]
+        },
         {
           "version": "0.1.0",
           "commit": "a837a649077b4fc92430dd5beb1c8b24668b0f89",
