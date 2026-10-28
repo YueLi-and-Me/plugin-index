@@ -36,7 +36,31 @@
   "0.1.1": {
     "tag": "v0.1.1",
     "commit": "235f50fc2feb2dbb2539323d850ce111b4a1127b",
-    "status": "pending",
-    "review_issue": 3
+    "status": "approved",
+    "review_issue": 3,
+    "manifest": {
+      "manifest_version": 2,
+      "id": "akari.deepseek-search",
+      "plugin_type": "tool",
+      "name": "DeepSeek 联网搜索",
+      "version": "0.1.1",
+      "description": "填一个 DeepSeek API 密钥即可使用的联网搜索，不用配置接口格式；把网页标题、来源、日期和摘要交给对话。想接智谱、博查等其他搜索服务，请装「联网搜索」",
+      "author": {
+        "name": "Akari-Aki",
+        "url": "https://github.com/Akari-Aki"
+      },
+      "license": "AGPL-3.0-only",
+      "host_application": {
+        "min_version": "0.2.0",
+        "max_version": "0.3.0"
+      }
+    },
+    "review": {
+      "version": "0.1.1",
+      "reviewed": true,
+      "decision": "pass",
+      "summary": "该版本主要更新 README、清单兼容版本与测试断言，实际插件行为与说明一致：仅通过配置的 DeepSeek/中转 base_url 调用公开搜索接口，不读写插件目录外文件，不修改宿主数据库或配置，未见 subprocess、eval、远程代码下载执行、绕过门面或访问回环/内网/云元数据的实现。查询词与 API 密钥仅发送至用户配置的接口，README 已说明第三方服务与隐私注意事项，且对密钥做了日志与错误文本脱敏。未发现凭据、聊天记录或用户标识外传风险。",
+      "risks": []
+    }
   }
 }
