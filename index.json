@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-28T02:25:28.204151Z",
+  "generated_at": "2026-10-28T02:32:56.438413Z",
   "stats_url": "https://plugins.yuelibot.org/stats.json",
   "plugins": [
     {
@@ -57,7 +57,7 @@
     {
       "id": "yueli.web-search",
       "name": "联网搜索",
-      "description": "按部署者配置的 HTTP JSON 接口或宿主 MCP 工具搜索公开信息，结果作为外部观察回灌",
+      "description": "通用联网搜索，需要自己填写搜索服务的接口地址、请求格式和结果字段，也可接 MCP 搜索工具；只填密钥不会启用。只想填 DeepSeek 密钥直接用，请装「DeepSeek 联网搜索」",
       "author": {
         "name": "Akari-Aki",
         "url": "https://github.com/Akari-Aki"
@@ -69,6 +69,23 @@
         "搜索"
       ],
       "versions": [
+        {
+          "version": "0.3.0",
+          "commit": "764df2f755fd9b383458e6e99b7f782f1a0b9c39",
+          "host_application": {
+            "min_version": "0.2.0",
+            "max_version": "0.3.0"
+          },
+          "python_dependencies": [],
+          "sha256": "733c549b8d9e994b2e1543f8ee5d8b9f1ce1363945d901c2e2a8623dc448483e",
+          "size": 30584,
+          "published_at": "2026-10-28T02:32:55Z",
+          "yanked": false,
+          "downloads": [
+            "https://plugins.yuelibot.org/packages/yueli.web-search/0.3.0.zip",
+            "https://github.com/YueLi-and-Me/plugin-index/releases/download/yueli.web-search-v0.3.0/yueli.web-search-0.3.0.zip"
+          ]
+        },
         {
           "version": "0.2.5",
           "commit": "a807688b0be1cd3fb3363c5a4a39edad6215f945",
