@@ -32,5 +32,11 @@
     "size": 23015,
     "published_at": "2026-10-27T13:24:59Z",
     "release_tag": "akari.deepseek-search-v0.1.0"
+  },
+  "0.1.1": {
+    "tag": "v0.1.1",
+    "commit": "235f50fc2feb2dbb2539323d850ce111b4a1127b",
+    "status": "pending",
+    "review_issue": 3
   }
 }
