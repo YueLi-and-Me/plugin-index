@@ -59,7 +59,7 @@ jobs:
           git add -- entries state blocked_versions.json
           if ! git diff --cached --quiet; then
             git commit -m 'chore: 更新插件审核结论'
-            git push origin HEAD:main
+            bash scripts/push_main.sh
           fi
       - name: 完成审核并显式分发发布
         env:

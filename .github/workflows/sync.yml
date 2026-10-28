@@ -37,7 +37,7 @@ jobs:
           git add -- state
           if ! git diff --cached --quiet; then
             git commit -m 'chore: 同步插件待审版本与撤回状态'
-            git push origin HEAD:main
+            bash scripts/push_main.sh
           fi
       - name: 显式分发审核
         env:

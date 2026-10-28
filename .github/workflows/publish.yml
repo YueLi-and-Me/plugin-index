@@ -45,7 +45,7 @@ jobs:
           git add -- state readme index.json
           if ! git diff --cached --quiet; then
             git commit -m 'chore: 更新插件包摘要与索引'
-            git push origin HEAD:main
+            bash scripts/push_main.sh
           fi
   # 部署与审核分开：审核作业要读取第三方插件源码，若部署凭证放在同一个作业里，
   # 插件中藏的代码就可能把凭证带出去，进而替换商店里的插件包。这里只在打包完成后、

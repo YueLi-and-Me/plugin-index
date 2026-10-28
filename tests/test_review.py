@@ -183,6 +183,16 @@ def test_review_workflow_dispatch_and_concurrency():
     assert text.index('校验审核编号')<text.index('actions/checkout')
 
 
+def test_workflows_push_main_through_rebase_retry():
+    """并行审核与发布都写 main，提交步骤必须经变基重试脚本推送，不得直接推送或强推。"""
+    root=Path(__file__).resolve().parents[1]
+    for name in ('review.yml','publish.yml','sync.yml'):
+        text=(root/'.github/workflows'/name).read_text(encoding='utf-8')
+        assert 'bash scripts/push_main.sh' in text and 'git push' not in text, name
+    script=(root/'scripts/push_main.sh').read_text(encoding='utf-8')
+    assert 'git pull --rebase' in script and '--force' not in script
+
+
 def test_model_valid_response_and_failed_call_counts():
     """完整证据放在数据消息中；失败请求消费预算并在第八次后停止。"""
     module=review(); requests=[]
